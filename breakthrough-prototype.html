@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>한계 돌파 시뮬레이터 UI 초안</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1eee7;font-family:system-ui,sans-serif;color:#29251f}button{font:inherit}.app{width:min(100%,520px);min-height:100vh;margin:auto;padding:16px;background:#ddd4c6}.summary{background:#42352d;color:#fff;border-radius:18px;padding:16px;text-align:center;margin-bottom:14px}.summary small{display:block;opacity:.75}.summary strong{font-size:26px}.panel{background:#fff8e8;border:3px solid #6a5546;border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 5px 0 #4b3c33}.characters{display:flex;gap:9px;overflow-x:auto;padding:3px 2px 10px}.char{flex:0 0 76px;border:3px solid #796252;border-radius:12px;background:#d9c9af;padding:6px;text-align:center}.char.active{outline:4px solid #f2b62c}.portrait{height:64px;border-radius:8px;background:#b5a58e;display:grid;place-items:center;font-size:30px}.char span{display:block;font-size:12px;margin-top:4px}.hero{height:300px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(#c8b690,#e7d9b9);border-radius:15px}.hero-figure{width:145px;height:210px;border-radius:50% 50% 42% 42%;background:#8b745e;display:grid;place-items:center;color:white;font-weight:800;font-size:20px;animation:idle 1.2s ease-in-out infinite alternate}@keyframes idle{from{transform:scaleY(.97) translateY(3px)}to{transform:scaleY(1.03) translateY(-3px)}}.level-line{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.level-controls{display:flex;align-items:center;gap:8px}.level-controls button{width:38px;height:38px;border:0;border-radius:10px;background:#6b594c;color:#fff;font-weight:900}.level{font-size:24px;font-weight:900}.rate{margin-top:10px;text-align:center;font-weight:800}.bonus{color:#d75b2d}.upgrade{width:100%;margin-top:12px;padding:13px 8px;border:3px solid #7e2e27;border-radius:15px;background:#db5146;color:white;font-weight:900;font-size:23px;box-shadow:0 5px 0 #7e2e27}.cost{display:block;font-size:16px;margin-top:3px}.tabs{display:flex;gap:8px;margin:14px 0 8px}.tabs button{flex:1;border:0;border-radius:10px;padding:10px;background:#69564a;color:white;font-weight:800}table{width:100%;border-collapse:collapse;background:white;font-size:13px}th,td{border:1px solid #d2c7b9;padding:8px;text-align:center}th{background:#eee4d4}.muted,.note{color:#776e66;font-size:12px}
+</style></head>
+<body><main class="app">
+<section class="summary"><small>소비한 재화 총합계</small><strong>💎 0 · 🪙 0</strong></section>
+<section class="panel"><div class="characters" id="characters"></div><div class="hero"><div class="hero-figure">캐릭터 이미지</div></div>
+<div class="level-line"><b>현재 레벨</b><div class="level-controls"><button id="minus">−</button><span class="level" id="level">Lv.15</span><button id="plus">＋</button></div></div>
+<div class="rate">성공 확률 <span id="rate">70%</span> <span class="bonus" id="bonus"></span></div>
+<button class="upgrade" id="upgrade">업그레이드<span class="cost" id="cost">💎 30　🪙 20,000</span></button>
+<p class="note">실패 보정 확률은 아직 미확정. 현재 +0%이며 설정 파일만 바꾸면 적용되도록 분리했습니다.</p></section>
+<section class="panel"><div class="tabs"><button>캐릭터 레벨 한눈에 보기</button><button>시도 기록</button></div><table><thead><tr><th>구간</th><th>시도</th><th>성공</th><th>돌파석</th><th>골드</th></tr></thead><tbody><tr><td>15 → 16</td><td>0</td><td>-</td><td>0</td><td>0</td></tr><tr><td colspan="5" class="muted">업그레이드 기록이 여기에 누적됩니다.</td></tr></tbody></table></section>
+</main><script type="module">
+import { BREAKTHROUGH_CONFIG } from './src/data/breakthroughConfig.js';
+import { BREAKTHROUGH_CHARACTERS } from './src/data/breakthroughCharacters.js';
+let level=15;const chars=document.querySelector('#characters');
+BREAKTHROUGH_CHARACTERS.forEach((c,i)=>{const b=document.createElement('button');b.className='char'+(i===0?' active':'');b.innerHTML='<div class="portrait">?</div><span>'+c.name+'</span>';b.onclick=()=>{document.querySelectorAll('.char').forEach(x=>x.classList.remove('active'));b.classList.add('active')};chars.appendChild(b)});
+function render(){const c=BREAKTHROUGH_CONFIG[level];document.querySelector('#level').textContent='Lv.'+level;if(!c){document.querySelector('#rate').textContent='MAX';document.querySelector('#cost').textContent='최대 레벨';document.querySelector('#upgrade').disabled=true;return}document.querySelector('#upgrade').disabled=false;document.querySelector('#rate').textContent=c.baseSuccessRate+'%';document.querySelector('#cost').textContent='💎 '+c.stoneCost+'　🪙 '+c.goldCost.toLocaleString()}
+document.querySelector('#minus').onclick=()=>{level=Math.max(15,level-1);render()};document.querySelector('#plus').onclick=()=>{level=Math.min(25,level+1);render()};render();
+</script></body></html>
