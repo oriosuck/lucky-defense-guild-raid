@@ -38,7 +38,8 @@ import { GLOBAL_ENHANCE_TRACKS, GLOBAL_ENHANCE_LABEL, GLOBAL_ENHANCE_MAX_LEVEL }
 import { RAY_SWORD_TIER_LABEL, RAY_SWORD_TIER_COLOR, RAY_SWORD_CRAFT_MAX } from '../data/raySwords.js';
 import { fieldOccupantCount, isFieldPhysicallyFull, FIELD_ROWS, FIELD_COLS } from '../state/gameState.js';
 import { el } from './components/dom.js';
-import { heroImage } from './components/heroVisual.js';
+import { heroImage, resolveHeroImage } from './components/heroVisual.js';
+import { createBattleCanvas } from './BattleCanvas.js';
 
 /**
  * @param {{ getState:()=>object, dispatch:(s:object)=>void, onExit:()=>void }} props
@@ -46,6 +47,15 @@ import { heroImage } from './components/heroVisual.js';
  */
 export function GameScreen({ getState, dispatch, onExit }) {
   const root = el('div', { class: 'screen game-screen' });
+  // 필드 캐릭터와 몬스터는 하나의 영구 Canvas에서 렌더링한다. 게임 상태 UI와
+  // 드래그 판정용 칸은 기존 DOM을 유지하되, 0.2초마다 이미지 노드를 다시 만드는
+  // 비용은 없앤다. canvas 노드는 render()의 root.innerHTML 초기화 뒤에도 같은
+  // 인스턴스를 새 stage에 다시 붙여 애니메이션/이미지 캐시가 끊기지 않는다.
+  const battleCanvas = el('canvas', {
+    class: 'battle-canvas',
+    'aria-label': '필드 캐릭터와 몬스터 전투 화면',
+  });
+  const battleRenderer = createBattleCanvas(battleCanvas, { monsterSrc: UI_IMAGES.monsterIcon });
   const ui = {
     selectedSlot: null, // {row,col} | null - 선택 기준은 개체가 아니라 칸 자체
     popup: null, // null | 'mythic' | 'roulette' | 'enhance' | 'mission'
@@ -138,6 +148,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     const stageWrap = el('div', { class: 'game-stage-wrap' }, [stage]);
     root.appendChild(stageWrap);
     sizeStageToFit(stageWrap, stage);
+    battleRenderer.sync(stage, state);
     if (prevScrollTop != null) {
       const newScrollEl = root.querySelector('.mythic-grid');
       if (newScrollEl) newScrollEl.scrollTop = prevScrollTop;
@@ -428,6 +439,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     stage.appendChild(renderBoss(state));
     const holeEffects = renderHoleEffects(state);
     if (holeEffects) stage.appendChild(holeEffects);
+    if (battleRenderer.supported) stage.appendChild(battleCanvas);
     stage.appendChild(renderField(state));
     const deleteLine = renderDeleteLineEffect(state);
     if (deleteLine) stage.appendChild(deleteLine);
@@ -1008,9 +1020,15 @@ export function GameScreen({ getState, dispatch, onExit }) {
         layer.appendChild(el('div', {
           class: `stage-hero-token${usingUltimate ? ' ultimate-flash' : ''}`,
           style: `left:${centerX}%; top:${top}%; width:${tokenWidth}%; height:${tokenHeight}%; z-index:${2 + slot.row};${usingUltimate ? ` --ring-delay:-${ultimateElapsedMs % 800}ms;` : ''}`,
+          'data-canvas-src': resolveHeroImage(heroDef, occ),
+          'data-canvas-seed': occ.instanceId,
+          'data-canvas-row': slot.row,
+          'data-canvas-filter': filterParts.join(' '),
         }, [
-          el('div', { class: 'stage-hero-shadow' }),
-          heroImage(heroDef, { className: 'stage-hero-image', instance: occ, style: imgStyle }),
+          battleRenderer.supported ? null : el('div', { class: 'stage-hero-shadow' }),
+          battleRenderer.supported
+            ? el('span', { class: 'stage-hero-image stage-hero-canvas-placeholder' })
+            : heroImage(heroDef, { className: 'stage-hero-image', instance: occ, style: imgStyle }),
           occ.enhanceLevel ? el('span', { class: 'enhance-badge', text: `+${occ.enhanceLevel}` }) : null,
         ]));
 
@@ -1949,6 +1967,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     // 게임을 나갈 때(main.js의 onExit) 반드시 호출해야 한다 - 위 window 리스너
     // 4개는 root와 달리 그냥 두면 페이지가 살아있는 한 계속 쌓인다(주석 참고).
     destroy() {
+      battleRenderer.destroy();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
