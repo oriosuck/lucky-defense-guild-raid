@@ -157,7 +157,7 @@ body {
   border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
-  background-image: url('/bg/battlefield_v3.webp');
+  background-image: url('/bg/battlefield_v4.webp');
   background-size: 100% 100%;
   background-position: center top;
   background-repeat: no-repeat;
@@ -731,7 +731,7 @@ body {
 
 /* ---- 하단 버튼 행: 신화 / 소환 / 룰렛 ---- */
 .action-row {
-  position: absolute; left: 12%; right: 12%; top: 80.1%; height: 11.8%; z-index: 3;
+  position: absolute; left: 9%; right: 9%; top: 79.8%; height: 12.4%; z-index: 3;
   display: flex; align-items: flex-end; gap: 2.5%;
 }
 .side-btn {
@@ -768,7 +768,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    실제 이미지 비율과 안 맞아 letterbox되어 버튼이 얇게 보였다 - height 대신
    aspect-ratio(864/247, enhance_btn.png 실제 크기)로 정확히 맞춘다. */
 .enhance-open-btn {
-  position: absolute; left: 31.5%; width: 37%; top: 88.2%; z-index: 3;
+  position: absolute; left: 29.5%; width: 41%; top: 92.2%; z-index: 3;
   aspect-ratio: 864 / 247;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
