@@ -1038,6 +1038,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
           class: `stage-hero-token${usingUltimate ? ' ultimate-flash' : ''}`,
           style: `left:${centerX}%; top:${top}%; width:${tokenWidth}%; height:${tokenHeight}%; z-index:${2 + slot.row};${usingUltimate ? ` --ring-delay:-${ultimateElapsedMs % 800}ms;` : ''}`,
           'data-canvas-src': resolveHeroImage(heroDef, occ),
+          'data-canvas-hero-id': occ.heroId,
+          'data-canvas-tier': heroDef?.tier ?? 'normal',
           'data-canvas-seed': occ.instanceId,
           'data-canvas-row': slot.row,
           'data-canvas-filter': filterParts.join(' '),
@@ -1519,10 +1521,21 @@ export function GameScreen({ getState, dispatch, onExit }) {
   function renderResourceRow(state) {
     return el('div', { class: 'stage-resource-row' }, [
       el('div', { class: 'resource-bar' }, [
-        el('span', { class: 'resource-value resource-gold', text: `${Math.floor(state.gold)}` }),
-        el('span', { class: 'resource-value resource-luckstone', text: `${state.luckstone}` }),
-        el('span', { class: 'resource-value resource-pop-current', text: `${fieldOccupantCount(state)}` }),
-        el('span', { class: 'resource-value resource-pop-max', text: `${state.fieldMaxCapacity}` }),
+        el('div', { class: 'resource-chip resource-chip-gold' }, [
+          el('img', { src: UI_IMAGES.goldIcon, alt: '' }),
+          el('span', { class: 'resource-chip-label', text: '골드' }),
+          el('strong', { text: `${Math.floor(state.gold)}` }),
+        ]),
+        el('div', { class: 'resource-chip resource-chip-luckstone' }, [
+          el('img', { src: UI_IMAGES.luckstoneIcon, alt: '' }),
+          el('span', { class: 'resource-chip-label', text: '행운석' }),
+          el('strong', { text: `${state.luckstone}` }),
+        ]),
+        el('div', { class: 'resource-chip resource-chip-population' }, [
+          el('span', { class: 'resource-chip-icon', text: '♟' }),
+          el('span', { class: 'resource-chip-label', text: '배치' }),
+          el('strong', { text: `${fieldOccupantCount(state)}/${state.fieldMaxCapacity}` }),
+        ]),
       ]),
     ]);
   }
@@ -1541,9 +1554,11 @@ export function GameScreen({ getState, dispatch, onExit }) {
       el('button', {
         class: 'mission-toggle-btn',
         title: '미션',
-        text: '☰',
         onclick: () => openPopup('mission', state),
-      }),
+      }, [
+        el('span', { class: 'mission-toggle-icon', text: '☰' }),
+        el('span', { class: 'mission-toggle-label', text: '미션' }),
+      ]),
     ]);
   }
 
