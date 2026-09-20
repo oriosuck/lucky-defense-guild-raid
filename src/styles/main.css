@@ -167,20 +167,20 @@ body {
    승인 시안에서 텍스트를 제거해 분리한 투명 명패 자산 위에 실제 웨이브/시간을 얹는다.
    장식과 텍스트가 분리되어 있으므로 상태가 바뀌어도 시안의 외형을 그대로 유지한다. */
 .top-badge {
-  position: absolute; left: 26%; top: .6%; width: 48%; aspect-ratio: 1883 / 835; z-index: 3;
+  position: absolute; left: 22%; top: .25%; width: 56%; aspect-ratio: 1883 / 835; z-index: 3;
   box-sizing: border-box;
   background: url('/ui/wave_plaque.webp') center / contain no-repeat;
   border: 0;
   color: #fff; text-align: center;
 }
 .top-badge-label {
-  position: absolute; left: 30%; right: 30%; top: 26%;
-  font-size: clamp(8px, 2.5vw, 12px); font-weight: 900; letter-spacing: .04em;
+  position: absolute; left: 30%; right: 30%; top: 25%;
+  font-size: clamp(9px, 2.8vw, 13px); font-weight: 900; letter-spacing: .04em;
   text-shadow: 0 2px 1px #000;
 }
 .top-badge-value {
-  position: absolute; left: 23%; right: 23%; top: 49%;
-  font-size: clamp(17px, 5.3vw, 25px); line-height: 1; font-weight: 900; color: #fff;
+  position: absolute; left: 21%; right: 21%; top: 47%;
+  font-size: clamp(20px, 6.1vw, 29px); line-height: 1; font-weight: 900; color: #fff;
   text-shadow: 0 3px 1px #17110e, 1px 0 #17110e, -1px 0 #17110e;
 }
 
@@ -189,13 +189,13 @@ body {
    바가 이어지는 모양(목업의 .skull+.text 구조와 대응). 메달 폭만큼 padding-left를 줘서
    텍스트가 메달과 안 겹치게 한다. */
 .monster-row {
-  position: absolute; left: 33%; top: 10.6%; width: 34%; z-index: 3;
+  position: absolute; left: 33%; top: 11.8%; width: 34%; z-index: 3;
   background-image: url('/ui/monster_count_bg.png');
   background-size: 100% 100%; background-repeat: no-repeat;
   aspect-ratio: 862 / 184;
 }
 .boss-health-row {
-  position: absolute; left: 15%; top: 14.1%; width: 70%; height: 3.25%; z-index: 3;
+  position: absolute; left: 15%; top: 15.2%; width: 70%; height: 3.25%; z-index: 3;
   display: flex; align-items: center; gap: 1.5%; box-sizing: border-box;
   padding: 0 2% 0 1%;
   background: linear-gradient(180deg, #3b201f, #190e11);
@@ -614,7 +614,7 @@ body {
    보였음). 시간 박스(.top-badge)는 왼쪽에 별도로 떠 있어서 여기 gap을 좁히는 방향
    (오른쪽 버튼끼리 더 가까워짐)은 시간 박스를 침범하지 않는다. */
 .stage-controls {
-  position: absolute; right: 2%; top: 2%; z-index: 5;
+  position: absolute; right: 1.5%; top: 1.35%; z-index: 5;
   display: flex; gap: 3px;
 }
 /* .stage-controls가 position:absolute + right/top만 있고 width/height가 없어서
@@ -624,7 +624,7 @@ body {
    height%는 안 먹어서 16x24px처럼 세로로 길쭉해짐) - width/height 둘 다 항상 확정값인
    vw 단위 + aspect-ratio로 바꿔서 컨테이너 auto-sizing과 무관하게 진짜 원이 되게 했다. */
 .stage-control-btn {
-  width: clamp(24px, 6.5vw, 32px); aspect-ratio: 1; border-radius: 6px;
+  width: clamp(22px, 5.8vw, 26px); aspect-ratio: 1; border-radius: 6px;
   background: linear-gradient(180deg, rgba(91,76,65,.96), rgba(42,33,29,.96)); border: 2px solid #2c211b;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 2px 3px rgba(0,0,0,.45);
   color: #fff; font-size: clamp(11px, 3vw, 15px);
@@ -636,7 +636,7 @@ body {
 /* ---- 재화 바 + 배속/미션(☰) ----
    목업의 .stat-row는 top:578px/812=71.18%. */
 .stage-resource-row {
-  position: absolute; left: 8%; top: 71.4%; width: 70%; z-index: 3;
+  position: absolute; left: 19%; top: 74.7%; width: 60%; z-index: 3;
   display: flex; align-items: center;
 }
 .resource-bar {
@@ -661,7 +661,7 @@ body {
 .resource-pop-max { left: 85.5%; }
 
 .stage-side-controls {
-  position: absolute; right: 4%; top: 71.2%; width: 16%; z-index: 3;
+  position: absolute; right: 4%; top: 74.45%; width: 14%; z-index: 3;
   display: flex; justify-content: space-between; align-items: center;
 }
 .speed-toggle-btn, .mission-toggle-btn {
@@ -725,11 +725,11 @@ body {
 
 /* ---- 하단 버튼 행: 신화 / 소환 / 룰렛 ---- */
 .action-row {
-  position: absolute; left: 5.2%; right: 5.2%; top: 77.2%; height: 12.8%; z-index: 3;
-  display: flex; align-items: flex-end; gap: 2.4%;
+  position: absolute; left: 12%; right: 12%; top: 80.1%; height: 11.8%; z-index: 3;
+  display: flex; align-items: flex-end; gap: 2.5%;
 }
 .side-btn {
-  flex: 0 0 22.5%; height: 88%;
+  flex: 0 0 23%; height: 88%;
   position: relative;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
@@ -762,7 +762,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    실제 이미지 비율과 안 맞아 letterbox되어 버튼이 얇게 보였다 - height 대신
    aspect-ratio(864/247, enhance_btn.png 실제 크기)로 정확히 맞춘다. */
 .enhance-open-btn {
-  position: absolute; left: 28%; width: 44%; top: 91.1%; z-index: 3;
+  position: absolute; left: 31.5%; width: 37%; top: 92.4%; z-index: 3;
   aspect-ratio: 864 / 247;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
