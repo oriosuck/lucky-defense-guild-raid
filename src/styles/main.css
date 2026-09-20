@@ -169,31 +169,65 @@ body {
    잘못 얹었었는데, 그게 "팝업 전용 요소가 게임 화면에 항상 떠 있다"는 버그의 정체였다 -
    그 이미지는 애초에 목업 어디에도 안 쓰이는 자산이라 지워야 맞다. 다시 순수 CSS로 되돌림. */
 .top-badge {
-  position: absolute; left: 23.3%; top: 2.2%; width: 53.3%; z-index: 3;
-  background: #4a3529;
-  border: 3px solid #2e2016;
-  border-radius: 14px;
-  padding: 4% 0 5%;
+  position: absolute; left: 27%; top: 1.6%; width: 46%; height: 8.2%; z-index: 3;
+  box-sizing: border-box;
+  background:
+    linear-gradient(90deg, transparent 0 8%, rgba(255,255,255,.12) 8% 10%, transparent 10% 90%, rgba(0,0,0,.18) 90% 92%, transparent 92%),
+    linear-gradient(180deg, #7b695b 0 18%, #57493f 18% 76%, #362b25 76% 100%);
+  border: clamp(2px, .8vw, 4px) solid #2b211c;
+  border-radius: 8px 8px 14px 14px;
+  box-shadow: inset 0 0 0 2px rgba(214,190,155,.32), 0 5px 0 #211813, 0 8px 12px rgba(0,0,0,.42);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   color: #fff; text-align: center;
 }
-.top-badge-label {
-  font-size: clamp(8px, 2.4vw, 11px); font-weight: 700;
-  background: rgba(0, 0, 0, 0.25); display: inline-block;
-  padding: 2px 10px; border-radius: 8px; margin-bottom: 4px;
+.top-badge::before,
+.top-badge::after {
+  content: '';
+  position: absolute; top: -11%; width: 34%; height: 68%; z-index: -1;
+  background: linear-gradient(145deg, #d7c19d 0 24%, #776250 25% 48%, #332722 49% 100%);
+  border: 3px solid #2c211b;
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,.35));
 }
-.top-badge-value { font-size: clamp(14px, 4.6vw, 22px); font-weight: 800; color: #fff; }
+.top-badge::before { right: 82%; clip-path: polygon(100% 20%, 58% 0, 66% 34%, 0 18%, 30% 54%, 10% 100%, 100% 72%); }
+.top-badge::after { left: 82%; transform: scaleX(-1); clip-path: polygon(100% 20%, 58% 0, 66% 34%, 0 18%, 30% 54%, 10% 100%, 100% 72%); }
+.top-badge-label {
+  font-size: clamp(8px, 2.6vw, 12px); font-weight: 900; letter-spacing: .04em;
+  background: #332720; display: inline-block;
+  padding: 1px 12%; border: 2px solid rgba(0,0,0,.3); border-radius: 7px; margin-bottom: 1%;
+  text-shadow: 0 2px 1px #000;
+}
+.top-badge-value { font-size: clamp(17px, 5.3vw, 25px); line-height: 1; font-weight: 900; color: #fff; text-shadow: 0 3px 1px #17110e, 1px 0 #17110e, -1px 0 #17110e; }
 
 /* ---- 몬스터 카운트 바 ----
    배경은 monster_count_bg.png("몬스터 카운트 바.png") - 왼쪽에 해골 메달, 오른쪽으로 어두운
    바가 이어지는 모양(목업의 .skull+.text 구조와 대응). 메달 폭만큼 padding-left를 줘서
    텍스트가 메달과 안 겹치게 한다. */
 .monster-row {
-  position: absolute; left: 29%; top: 13.79%; width: 42%; z-index: 3;
+  position: absolute; left: 33%; top: 10.7%; width: 34%; z-index: 3;
   background-image: url('/ui/monster_count_bg.png');
   background-size: 100% 100%; background-repeat: no-repeat;
   aspect-ratio: 862 / 184;
 }
+.boss-health-row {
+  position: absolute; left: 15%; top: 14.1%; width: 70%; height: 3.25%; z-index: 3;
+  display: flex; align-items: center; gap: 1.5%; box-sizing: border-box;
+  padding: 0 2% 0 1%;
+  background: linear-gradient(180deg, #3b201f, #190e11);
+  border: 2px solid #281611;
+  border-radius: 6px 12px 12px 6px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 3px 5px rgba(0,0,0,.42);
+}
+.boss-health-emblem {
+  width: 10%; aspect-ratio: 1; margin-left: -7%;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: #16090b; font-size: clamp(11px, 3.4vw, 17px); font-weight: 900;
+  background: linear-gradient(180deg, #ff3b4f, #b70f28);
+  border: 2px solid #2b1017;
+  box-shadow: 0 2px 3px rgba(0,0,0,.5);
+}
+.boss-health-label { color: #fff; font-size: clamp(9px, 2.6vw, 13px); font-weight: 900; white-space: nowrap; text-shadow: 0 2px #000; }
+.boss-health-track { position: relative; flex: 1; height: 58%; overflow: hidden; background: #2b0d12; border: 1px solid #080405; border-radius: 3px; }
+.boss-health-fill { display: block; height: 100%; border-radius: 2px; background: linear-gradient(180deg, #ff4b55 0 40%, #d90b2c 42% 100%); box-shadow: inset 0 2px rgba(255,255,255,.28); transition: width .2s linear; }
 /* 텍스트를 flex+padding으로 어림잡아 중앙에 두면 해골 메달 쪽으로 살짝 치우쳐 보였다 -
    이미지를 실측(해골 메달 0.9~20%, 남은 어두운 바 20.5~98.5%)해서 바 부분의 정확한
    구간만 잘라 그 안에서 text-align:center로 정렬한다. */
@@ -207,19 +241,19 @@ body {
    너비를 16%에서 10%로 줄임(사용자 지적 - 원이 너무 컸음). top도 8%→17%로
    내림(칸 2개 높이만큼, 4.61%/칸 * 2 - 너무 위에 있다는 지적) */
 .favorite-bar {
-  position: absolute; left: 2%; top: 17%; width: 10%; max-height: 45%;
-  display: flex; flex-direction: column; gap: 6%;
+  position: absolute; left: 1.6%; top: 18%; width: 9%; max-height: 38%;
+  display: flex; flex-direction: column; gap: 5px;
   overflow-y: auto; overflow-x: hidden;
   z-index: 4;
 }
 .favorite-bar::-webkit-scrollbar { width: 3px; }
 .favorite-icon {
   position: relative;
-  width: 100%; aspect-ratio: 1; padding: 6%; border-radius: 50%;
-  background: rgba(20, 16, 30, 0.55); border: 2px solid var(--gold); cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  width: 100%; aspect-ratio: .82; padding: 5%; border-radius: 7px;
+  background: linear-gradient(180deg, rgba(82,65,53,.96), rgba(31,24,28,.94)); border: 2px solid #c69c4a; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 3px 4px rgba(0, 0, 0, 0.55);
 }
-.favorite-icon-image { width: 100%; height: 100%; border-radius: 50%; }
+.favorite-icon-image { width: 100%; height: 100%; border-radius: 4px; object-fit: contain; }
 .favorite-icon.is-disabled { cursor: default; opacity: 0.6; border-color: rgba(255, 255, 255, 0.35); }
 /* 승급 가능한 불멸 후보 - 신화 조합 가능 아이콘과 구분되도록 보라색 테두리+글로우 */
 /* 빨간 테두리 원 - 신화(보라색 원)와 구분되는 불멸 승급 후보 표시(사용자 지정) */
@@ -594,8 +628,8 @@ body {
    보였음). 시간 박스(.top-badge)는 왼쪽에 별도로 떠 있어서 여기 gap을 좁히는 방향
    (오른쪽 버튼끼리 더 가까워짐)은 시간 박스를 침범하지 않는다. */
 .stage-controls {
-  position: absolute; right: 2%; top: 1.5%; z-index: 5;
-  display: flex; gap: 0.8vw;
+  position: absolute; right: 2%; top: 2%; z-index: 5;
+  display: flex; gap: 3px;
 }
 /* .stage-controls가 position:absolute + right/top만 있고 width/height가 없어서
    auto(콘텐츠 기준) 크기다 - 자식의 height:%는 "컨테이닝 블록의 높이가 확정값일 때"만
@@ -604,18 +638,38 @@ body {
    height%는 안 먹어서 16x24px처럼 세로로 길쭉해짐) - width/height 둘 다 항상 확정값인
    vw 단위 + aspect-ratio로 바꿔서 컨테이너 auto-sizing과 무관하게 진짜 원이 되게 했다. */
 .stage-control-btn {
-  width: clamp(30px, 8.5vw, 42px); aspect-ratio: 1; border-radius: 50%;
-  background: rgba(20, 16, 26, 0.65); border: 2px solid rgba(255, 255, 255, 0.3);
-  color: #fff; font-size: clamp(14px, 4vw, 20px);
+  width: clamp(24px, 6.5vw, 32px); aspect-ratio: 1; border-radius: 6px;
+  background: linear-gradient(180deg, rgba(91,76,65,.96), rgba(42,33,29,.96)); border: 2px solid #2c211b;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 2px 3px rgba(0,0,0,.45);
+  color: #fff; font-size: clamp(11px, 3vw, 15px);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
 .stage-control-btn.active { border-color: var(--gold); color: var(--gold); }
 
+.command-deck-frame {
+  position: absolute; left: 1.5%; right: 1.5%; top: 67.4%; bottom: .4%; z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.08), transparent 12% 88%, rgba(0,0,0,.18)),
+    linear-gradient(180deg, rgba(99,67,47,.94), rgba(55,38,35,.97) 58%, rgba(32,30,39,.98));
+  border: clamp(2px, .9vw, 4px) solid #2a211d;
+  border-radius: 14px 14px 28px 28px;
+  clip-path: polygon(5% 0, 95% 0, 100% 12%, 98% 88%, 90% 100%, 10% 100%, 2% 88%, 0 12%);
+  box-shadow: inset 0 0 0 3px rgba(194,153,92,.2), inset 0 -18px 28px rgba(15,18,28,.3), 0 -4px 12px rgba(0,0,0,.35);
+}
+.command-deck-frame::before {
+  content: ''; position: absolute; left: 4%; right: 4%; top: 3%; height: 15%;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #4a352c, #291e1d);
+  border: 2px solid #211817;
+  box-shadow: inset 0 2px rgba(255,255,255,.09);
+}
+
 /* ---- 재화 바 + 배속/미션(☰) ----
    목업의 .stat-row는 top:578px/812=71.18%. */
 .stage-resource-row {
-  position: absolute; left: 8%; top: 69.4%; width: 62%; z-index: 3;
+  position: absolute; left: 9%; top: 68.2%; width: 67%; z-index: 3;
   display: flex; align-items: center;
 }
 .resource-bar {
@@ -640,7 +694,7 @@ body {
 .resource-pop-max { left: 85.5%; }
 
 .stage-side-controls {
-  position: absolute; right: 4%; top: 69.1%; width: 20%; z-index: 3;
+  position: absolute; right: 4.5%; top: 68.25%; width: 17%; z-index: 3;
   display: flex; justify-content: space-between; align-items: center;
 }
 .speed-toggle-btn, .mission-toggle-btn {
@@ -649,9 +703,10 @@ body {
 }
 .speed-toggle-btn { background: transparent; padding: 0; }
 .mission-toggle-btn {
-  background: rgba(20, 16, 26, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  background: linear-gradient(180deg, #59687c, #293346);
+  border: 2px solid #1d202b;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 2px 3px rgba(0,0,0,.4);
   color: #fff;
   font-size: clamp(12px, 3.4vw, 18px);
   display: flex; align-items: center; justify-content: center;
@@ -703,11 +758,11 @@ body {
 
 /* ---- 하단 버튼 행: 신화 / 소환 / 룰렛 ---- */
 .action-row {
-  position: absolute; left: 4.3%; right: 4.3%; top: 75%; height: 12.1%; z-index: 3;
-  display: flex; align-items: flex-end; gap: 3%;
+  position: absolute; left: 5.2%; right: 5.2%; top: 74.2%; height: 13.4%; z-index: 3;
+  display: flex; align-items: flex-end; gap: 2.4%;
 }
 .side-btn {
-  flex: 0 0 22%; height: 90%;
+  flex: 0 0 22.5%; height: 88%;
   position: relative;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
@@ -718,15 +773,19 @@ body {
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
 .summon-btn-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.side-btn img, .summon-btn-wrap img, .enhance-open-btn img { filter: drop-shadow(0 4px 2px rgba(0,0,0,.42)); }
+.side-btn:active img, .summon-btn-wrap:active img, .enhance-open-btn:active img { transform: translateY(2px) scale(.985); }
 .hex-badge {
   position: absolute; top: -4%; right: 6%;
   background: var(--danger); color: #fff; font-size: 10px; font-weight: 700;
   border-radius: 999px; min-width: 16px; padding: 1px 4px; text-align: center;
 }
 .summon-cost-overlay {
-  position: absolute; left: 50%; bottom: 20%; transform: translateX(-50%);
-  color: var(--gold); font-weight: 800; font-size: clamp(9px, 2.6vw, 12px);
-  text-shadow: 0 1px 2px #000;
+  position: absolute; left: 50%; bottom: 16%; transform: translateX(-50%);
+  min-width: 38%; padding: 1% 6%; border-radius: 999px;
+  background: rgba(67,39,12,.72); border: 1px solid rgba(255,225,114,.45);
+  color: #fff2b0; font-weight: 900; font-size: clamp(9px, 2.8vw, 13px);
+  text-shadow: 0 2px 2px #000;
 }
 button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45; cursor: not-allowed; }
 
@@ -736,7 +795,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    실제 이미지 비율과 안 맞아 letterbox되어 버튼이 얇게 보였다 - height 대신
    aspect-ratio(864/247, enhance_btn.png 실제 크기)로 정확히 맞춘다. */
 .enhance-open-btn {
-  position: absolute; left: 29.3%; width: 41.3%; top: 88.3%; z-index: 3;
+  position: absolute; left: 28%; width: 44%; top: 88.6%; z-index: 3;
   aspect-ratio: 864 / 247;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }

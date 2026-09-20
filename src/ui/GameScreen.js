@@ -444,6 +444,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     const stage = el('div', { class: 'game-stage' });
     stage.appendChild(renderTopBadge(state));
     stage.appendChild(renderMonsterRow(state));
+    stage.appendChild(renderBossHealth(state));
     stage.appendChild(renderBossBadge(state));
     const holeEffects = renderHoleEffects(state);
     if (holeEffects) stage.appendChild(holeEffects);
@@ -458,6 +459,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     if (chadArrows) stage.appendChild(chadArrows);
     stage.appendChild(renderFavoriteBar(state));
     stage.appendChild(renderStageControls(state));
+    stage.appendChild(el('div', { class: 'command-deck-frame', 'aria-hidden': 'true' }));
     stage.appendChild(renderResourceRow(state));
     stage.appendChild(renderSideControls(state));
     stage.appendChild(renderActionRow(state));
@@ -495,6 +497,21 @@ export function GameScreen({ getState, dispatch, onExit }) {
   function renderMonsterRow(state) {
     return el('div', { class: 'monster-row' }, [
       el('span', { class: 'monster-count-text', text: `${displayMonsterCount(state)} / ${state.monsterMax}` }),
+    ]);
+  }
+
+  // 이 게임 상태에는 별도의 보스 HP 수치가 없으므로 전투 진행 시간을 보스 게이지로
+  // 시각화한다. 실제로 존재하지 않는 데미지 수치를 꾸며내지 않으면서도 참고 UI의
+  // 굵은 빨간 보스 바를 유지하고, 라운드가 진행될수록 자연스럽게 줄어든다.
+  function renderBossHealth(state) {
+    const duration = state.wave === 10 || state.wave === 20 ? 150 : (state.wave === 0 ? 5 : 30);
+    const progress = Math.max(0, Math.min(100, (state.waveTimeLeft / duration) * 100));
+    return el('div', { class: 'boss-health-row', 'aria-label': `보스 전투 진행 ${Math.round(progress)}%` }, [
+      el('span', { class: 'boss-health-emblem', text: '☠' }),
+      el('span', { class: 'boss-health-label', text: '보스' }),
+      el('span', { class: 'boss-health-track' }, [
+        el('span', { class: 'boss-health-fill', style: `width:${progress}%;` }),
+      ]),
     ]);
   }
 
