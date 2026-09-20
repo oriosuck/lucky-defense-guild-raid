@@ -40,6 +40,7 @@ import { fieldOccupantCount, isFieldPhysicallyFull, FIELD_ROWS, FIELD_COLS } fro
 import { el } from './components/dom.js';
 import { heroImage, resolveHeroImage } from './components/heroVisual.js';
 import { createBattleCanvas } from './BattleCanvas.js';
+import { createGameAudio } from '../audio/GameAudio.js';
 
 /**
  * @param {{ getState:()=>object, dispatch:(s:object)=>void, onExit:()=>void }} props
@@ -47,6 +48,7 @@ import { createBattleCanvas } from './BattleCanvas.js';
  */
 export function GameScreen({ getState, dispatch, onExit }) {
   const root = el('div', { class: 'screen game-screen' });
+  const gameAudio = createGameAudio();
   // 필드 캐릭터와 몬스터는 하나의 영구 Canvas에서 렌더링한다. 게임 상태 UI와
   // 드래그 판정용 칸은 기존 DOM을 유지하되, 0.2초마다 이미지 노드를 다시 만드는
   // 비용은 없앤다. canvas 노드는 render()의 root.innerHTML 초기화 뒤에도 같은
@@ -59,7 +61,9 @@ export function GameScreen({ getState, dispatch, onExit }) {
     monsterSrc: UI_IMAGES.monsterIcon,
     bossSrc: BOSS_IMAGE,
     bossLayout: STAGE_LAYOUT.boss,
+    onImpact: () => gameAudio.impact(),
   });
+  root.addEventListener('pointerdown', () => gameAudio.unlock(), { once: true });
   const ui = {
     selectedSlot: null, // {row,col} | null - 선택 기준은 개체가 아니라 칸 자체
     popup: null, // null | 'mythic' | 'roulette' | 'enhance' | 'mission'
@@ -536,6 +540,15 @@ export function GameScreen({ getState, dispatch, onExit }) {
           const next = structuredClone(state);
           next.paused = !state.paused;
           dispatch(next);
+        },
+      }),
+      el('button', {
+        class: 'stage-control-btn',
+        text: gameAudio.muted ? '🔇' : '🔊',
+        title: gameAudio.muted ? '소리 켜기' : '소리 끄기',
+        onclick: () => {
+          gameAudio.toggle();
+          render(getState());
         },
       }),
     ];
@@ -1972,6 +1985,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     // 4개는 root와 달리 그냥 두면 페이지가 살아있는 한 계속 쌓인다(주석 참고).
     destroy() {
       battleRenderer.destroy();
+      gameAudio.destroy();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);

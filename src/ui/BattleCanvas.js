@@ -39,13 +39,14 @@ function drawContained(context, image, x, y, width, height) {
 }
 
 class BattleCanvasRenderer {
-  constructor(canvas, { monsterSrc, bossSrc, bossLayout }) {
+  constructor(canvas, { monsterSrc, bossSrc, bossLayout, onImpact }) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d', { alpha: true, desynchronized: true });
     this.supported = Boolean(this.context);
     this.monsterSrc = monsterSrc;
     this.bossSrc = bossSrc;
     this.bossLayout = bossLayout;
+    this.onImpact = onImpact;
     this.imageCache = new Map();
     this.sprites = [];
     this.monsterCount = 0;
@@ -55,6 +56,7 @@ class BattleCanvasRenderer {
     this.lastFrameAt = 0;
     this.visualTime = 0;
     this.animationFrame = null;
+    this.lastImpactAt = -Infinity;
     this.visible = !document.hidden;
     this.handleVisibility = () => {
       this.visible = !document.hidden;
@@ -147,6 +149,10 @@ class BattleCanvasRenderer {
       const phase = this.heroMotion(sprite).attackPhase;
       return phase > 0.82 && phase < 0.98;
     });
+    if (hit && this.visualTime - this.lastImpactAt > 190) {
+      this.lastImpactAt = this.visualTime;
+      this.onImpact?.();
+    }
 
     context.save();
     context.fillStyle = 'rgba(8, 7, 10, 0.34)';
