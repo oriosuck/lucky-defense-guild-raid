@@ -1,7 +1,7 @@
 // 영웅 외 공용 이미지 에셋 (public/ 하위, 서브 경로 배포 대응을 위해 BASE_URL을 붙인다)
 const BASE = import.meta.env.BASE_URL;
 export const BOSS_IMAGE = `${BASE}bg/boss.png`;
-export const BACKGROUND_IMAGE = `${BASE}bg/background.jpg`;
+export const BACKGROUND_IMAGE = `${BASE}bg/battlefield_v2.webp`;
 
 // 필드에서 실제로 사용 중인 원화 파일명과 같은 이름의 8프레임 시트를 찾는다.
 // 변신형 영웅도 resolveHeroImage()가 반환한 현재 원화 기준으로 자동 연결된다.
@@ -11,7 +11,8 @@ export function heroAnimationSheetFor(imageSource) {
   return stem ? `${BASE}sprites/${stem}_actions.webp` : '';
 }
 
-// background.jpg 원본 크기(688x1508)에서 실측한 좌표를 %로 변환한 값.
+// battlefield_v2.webp 원본 크기(847x1857, 기존과 같은 688:1508 비율)에서
+// 실측한 좌표를 %로 변환한 값.
 // 검은 테두리로 표시돼 있던 돌판 프레임은 가로세로 비율이 6x4 칸과 정확히
 // 맞아떨어져서(512x278px) 전장 그리드 자리였다 - 보스는 그 위 빈 하늘 공간에 배치한다.
 // field는 배경 원화에 그려진 돌판 프레임과 정확히 겹쳐야 해서 계속 실측값을 쓴다.
@@ -21,7 +22,9 @@ export function heroAnimationSheetFor(imageSource) {
 // (width% * stageWidth/stageHeight / imgRatio = 58.67 * (688/1508) / 1.2157 ≈ 22.02).
 export const BACKGROUND_ASPECT_RATIO = '688 / 1508';
 export const STAGE_LAYOUT = {
-  field: { left: 12.5, top: 43.63, width: 74.42, height: 18.44 },
+  // battlefield_v2.webp의 검은 외곽선 안쪽 실제 전투면을 다시 실측한 값.
+  // 바깥 석재 프레임까지 그리드로 덮지 않아 승인안의 작은 발판 비율을 유지한다.
+  field: { left: 13.2, top: 42.16, width: 73.0, height: 16.97 },
   boss: { left: 20.67, top: 18.47, width: 58.67, height: 22.02 },
   // 좌우 굴은 "전장 바로 위 모서리"가 아니라 배경 원화에 그려진 톱니바퀴 장식의 중심축
   // (동그란 청동색 허브)이다 - 예전 값(14.97/85.03, 44.23/44.4)은 실제로는 전장 박스

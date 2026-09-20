@@ -459,7 +459,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
     if (chadArrows) stage.appendChild(chadArrows);
     stage.appendChild(renderFavoriteBar(state));
     stage.appendChild(renderStageControls(state));
-    stage.appendChild(el('div', { class: 'command-deck-frame', 'aria-hidden': 'true' }));
     stage.appendChild(renderResourceRow(state));
     stage.appendChild(renderSideControls(state));
     stage.appendChild(renderActionRow(state));
