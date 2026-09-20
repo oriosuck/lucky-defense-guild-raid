@@ -1554,20 +1554,26 @@ export function GameScreen({ getState, dispatch, onExit }) {
       el('button', {
         class: 'command-hit command-mythic', title: '신화',
         onclick: () => { ui.mythicSelectedId = null; openPopup('mythic', state); },
-      }, [el('span', { class: 'command-badge', text: String(mythicBadgeCount) })]),
+      }, [
+        el('span', { class: 'command-label', text: '신화' }),
+        el('span', { class: 'command-badge', text: String(mythicBadgeCount) }),
+      ]),
       el('button', {
         class: `command-hit command-summon${summonDisabled ? ' is-disabled' : ''}`,
         title: '소환', disabled: summonDisabled,
         onclick: () => apply(summonNormal(state)),
-      }, [el('span', { class: 'command-summon-cost', text: `${state.normalSummonCost}G` })]),
+      }, [
+        el('span', { class: 'command-label', text: '소환' }),
+        el('span', { class: 'command-summon-cost', text: `${state.normalSummonCost}G` }),
+      ]),
       el('button', {
         class: 'command-hit command-roulette', title: '룰렛',
         onclick: () => openPopup('roulette', state),
-      }),
+      }, [el('span', { class: 'command-label', text: '룰렛' })]),
       el('button', {
         class: 'command-hit command-enhance', title: '강화',
         onclick: () => openPopup('enhance', state),
-      }),
+      }, [el('span', { class: 'command-label', text: '강화' })]),
     ]);
   }
 

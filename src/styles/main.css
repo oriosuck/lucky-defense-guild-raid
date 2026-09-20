@@ -811,20 +811,31 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 .command-hit:focus-visible { outline: 3px solid #ffe06a; outline-offset: -3px; }
 .command-mythic {
   left: 10%; top: 29%; width: 21%; aspect-ratio: 480 / 380;
-  background-image: url('/ui/reference_mythic_button_v2.webp');
+  background-image: url('/ui/reference_mythic_button_v3.webp');
 }
 .command-summon {
   left: 32%; top: 29%; width: 36%; aspect-ratio: 770 / 380;
-  background-image: url('/ui/reference_summon_button_v2.webp');
+  background-image: url('/ui/reference_summon_button_v3.webp');
 }
 .command-roulette {
   left: 69%; top: 29%; width: 21%; aspect-ratio: 470 / 365;
-  background-image: url('/ui/reference_roulette_button_v2.webp');
+  background-image: url('/ui/reference_roulette_button_v3.webp');
 }
 .command-enhance {
   left: 30%; top: 69%; width: 40%; aspect-ratio: 880 / 250;
-  background-image: url('/ui/reference_enhance_button_v2.webp');
+  background-image: url('/ui/reference_enhance_button_v3.webp');
 }
+.command-label {
+  position: absolute; left: 50%; transform: translate(-50%,-50%);
+  color: #fff; font-size: clamp(12px, 3.6vw, 17px); font-weight: 900;
+  line-height: 1; white-space: nowrap;
+  text-shadow: 0 2px 0 #05070a, 2px 0 #05070a, -2px 0 #05070a, 0 -2px #05070a;
+  pointer-events: none;
+}
+.command-mythic .command-label,
+.command-roulette .command-label { top: 76%; }
+.command-summon .command-label { top: 35%; }
+.command-enhance .command-label { left: 61%; top: 51%; }
 .command-hit.is-disabled { cursor: not-allowed; filter: grayscale(.35); opacity: .55; }
 .command-badge {
   position: absolute; right: 8%; top: 1%; min-width: 17px; padding: 1px 4px;
