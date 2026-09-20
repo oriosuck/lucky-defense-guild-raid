@@ -157,7 +157,7 @@ body {
   border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
-  background-image: url('/bg/battlefield_v2.webp');
+  background-image: url('/bg/battlefield_v3.webp');
   background-size: 100% 100%;
   background-position: center top;
   background-repeat: no-repeat;
@@ -638,6 +638,10 @@ body {
 .stage-resource-row {
   position: absolute; left: 19%; top: 74.7%; width: 60%; z-index: 3;
   display: flex; align-items: center;
+  box-sizing: border-box; padding: .65%;
+  background: #251913;
+  clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0 50%);
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,.45));
 }
 .resource-bar {
   width: 100%;
@@ -645,6 +649,8 @@ body {
   background-image: url('/ui/resource_bar.png');
   background-size: 100% 100%; background-repeat: no-repeat;
   position: relative;
+  border-radius: 0;
+  clip-path: polygon(2.5% 0, 97.5% 0, 100% 50%, 97.5% 100%, 2.5% 100%, 0 50%);
 }
 .resource-value {
   position: absolute; top: 0; height: 100%;
@@ -762,7 +768,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    실제 이미지 비율과 안 맞아 letterbox되어 버튼이 얇게 보였다 - height 대신
    aspect-ratio(864/247, enhance_btn.png 실제 크기)로 정확히 맞춘다. */
 .enhance-open-btn {
-  position: absolute; left: 31.5%; width: 37%; top: 92.4%; z-index: 3;
+  position: absolute; left: 31.5%; width: 37%; top: 88.2%; z-index: 3;
   aspect-ratio: 864 / 247;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
