@@ -810,20 +810,20 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 .command-hit:active { transform: translateY(2px) scale(.985); }
 .command-hit:focus-visible { outline: 3px solid #ffe06a; outline-offset: -3px; }
 .command-mythic {
-  left: 12%; top: 30%; width: 20%; aspect-ratio: 450 / 360;
-  background-image: url('/ui/reference_mythic_button.webp');
+  left: 10%; top: 29%; width: 21%; aspect-ratio: 480 / 380;
+  background-image: url('/ui/reference_mythic_button_v2.webp');
 }
 .command-summon {
-  left: 33%; top: 30%; width: 34%; aspect-ratio: 720 / 360;
-  background-image: url('/ui/reference_summon_button.webp');
+  left: 32%; top: 29%; width: 36%; aspect-ratio: 770 / 380;
+  background-image: url('/ui/reference_summon_button_v2.webp');
 }
 .command-roulette {
-  left: 68%; top: 30%; width: 20%; aspect-ratio: 450 / 360;
-  background-image: url('/ui/reference_roulette_button.webp');
+  left: 69%; top: 29%; width: 21%; aspect-ratio: 470 / 365;
+  background-image: url('/ui/reference_roulette_button_v2.webp');
 }
 .command-enhance {
-  left: 32%; top: 70%; width: 36%; aspect-ratio: 770 / 205;
-  background-image: url('/ui/reference_enhance_button.webp');
+  left: 30%; top: 69%; width: 40%; aspect-ratio: 880 / 250;
+  background-image: url('/ui/reference_enhance_button_v2.webp');
 }
 .command-hit.is-disabled { cursor: not-allowed; filter: grayscale(.35); opacity: .55; }
 .command-badge {
