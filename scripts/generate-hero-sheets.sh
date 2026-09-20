@@ -51,9 +51,15 @@ generate_sheet() {
     -append -quality 88 -define webp:lossless=false -define webp:method=6 "$sheet_file"
 }
 
-for hero_file in "$PROJECT_ROOT"/public/heroes/*; do
-  generate_sheet "$hero_file"
-done
+if [ "$#" -gt 0 ]; then
+  for hero_file in "$@"; do
+    generate_sheet "$hero_file"
+  done
+else
+  for hero_file in "$PROJECT_ROOT"/public/heroes/*; do
+    generate_sheet "$hero_file"
+  done
 
-# 마마가 소환하는 임프도 필드 캐릭터이므로 같은 프레임 규칙을 적용한다.
-generate_sheet "$PROJECT_ROOT/public/ui/imp.png"
+  # 마마가 소환하는 임프도 필드 캐릭터이므로 같은 프레임 규칙을 적용한다.
+  generate_sheet "$PROJECT_ROOT/public/ui/imp.png"
+fi
