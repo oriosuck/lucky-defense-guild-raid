@@ -195,7 +195,7 @@ body {
   aspect-ratio: 862 / 184;
 }
 .boss-health-row {
-  position: absolute; left: 17.5%; top: 9.5%; width: 65%; aspect-ratio: 1640 / 260; z-index: 3;
+  position: absolute; left: 17.5%; top: 9.5%; width: 65%; height: 3.4%; z-index: 3;
   box-sizing: border-box;
   background: url('/ui/reference_boss_bar.webp') center / 100% 100% no-repeat;
 }
@@ -778,36 +778,53 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 .enhance-open-btn img { width: 100%; height: 100%; object-fit: contain; }
 
 /* ---- 승인 시안 기반 신규 하단 HUD ----
-   기존 버튼 PNG 네 장을 조합하지 않고, 시안의 한 덩어리 같은 명령 패널을 새로 제작했다.
-   배경 자산은 장식만 담당하고 숫자/비용/클릭은 실제 DOM이 담당한다. */
+   합쳐진 HUD 한 장을 컨테이너에 강제로 맞추면 화면 비율에 따라 버튼이 세로로 늘어난다.
+   재화바와 버튼을 각각 분리하고 각 자산의 aspect-ratio를 보존한다. */
 .command-deck {
-  position: absolute; left: 7.5%; right: 7.5%; top: 72.3%; height: 27.2%; z-index: 4;
-  background: url('/ui/reference_command_hud.webp') center / 100% 100% no-repeat;
-  filter: drop-shadow(0 4px 4px rgba(0,0,0,.34));
+  position: absolute; inset: 74% 0 0; z-index: 4;
   pointer-events: none;
 }
-.command-resource-values { position: absolute; inset: 0; pointer-events: none; }
+.command-resource-values {
+  position: absolute; left: 19%; top: 8%; width: 62%; aspect-ratio: 1310 / 175;
+  background: url('/ui/reference_resource_bar.webp') center / contain no-repeat;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,.34));
+  pointer-events: none;
+}
 .command-resource {
-  position: absolute; top: 18.3%; height: 9%;
+  position: absolute; top: 0; height: 100%;
   display: flex; align-items: center; justify-content: center;
   color: #fff8e7; font-weight: 900; font-size: clamp(11px, 3.25vw, 16px);
   line-height: 1; white-space: nowrap;
   text-shadow: 0 2px 1px #160d09, 1px 0 #160d09, -1px 0 #160d09;
 }
-.command-gold { left: 24%; width: 14%; }
-.command-luckstone { left: 51%; width: 12%; }
-.command-population { left: 76%; width: 14%; }
+.command-gold { left: 14%; width: 20%; }
+.command-luckstone { left: 46%; width: 18%; }
+.command-population { left: 71%; width: 21%; }
 .command-hit {
   position: absolute; padding: 0; border: 0; background: transparent;
   cursor: pointer; pointer-events: auto; color: #fff;
+  background-position: center; background-size: contain; background-repeat: no-repeat;
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,.34));
   -webkit-tap-highlight-color: transparent;
 }
 .command-hit:active { transform: translateY(2px) scale(.985); }
 .command-hit:focus-visible { outline: 3px solid #ffe06a; outline-offset: -3px; }
-.command-mythic { left: 6.2%; top: 33.4%; width: 23.7%; height: 37.8%; }
-.command-summon { left: 30.4%; top: 33.2%; width: 39.4%; height: 38.3%; }
-.command-roulette { left: 70.1%; top: 33.5%; width: 23.6%; height: 37.8%; }
-.command-enhance { left: 29%; top: 72.2%; width: 42%; height: 20.7%; }
+.command-mythic {
+  left: 12%; top: 30%; width: 20%; aspect-ratio: 450 / 360;
+  background-image: url('/ui/reference_mythic_button.webp');
+}
+.command-summon {
+  left: 33%; top: 30%; width: 34%; aspect-ratio: 720 / 360;
+  background-image: url('/ui/reference_summon_button.webp');
+}
+.command-roulette {
+  left: 68%; top: 30%; width: 20%; aspect-ratio: 450 / 360;
+  background-image: url('/ui/reference_roulette_button.webp');
+}
+.command-enhance {
+  left: 32%; top: 70%; width: 36%; aspect-ratio: 770 / 205;
+  background-image: url('/ui/reference_enhance_button.webp');
+}
 .command-hit.is-disabled { cursor: not-allowed; filter: grayscale(.35); opacity: .55; }
 .command-badge {
   position: absolute; right: 8%; top: 1%; min-width: 17px; padding: 1px 4px;
@@ -816,7 +833,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
   box-shadow: 0 2px 3px rgba(0,0,0,.42);
 }
 .command-summon-cost {
-  position: absolute; left: 49%; top: 68%; transform: translate(-50%,-50%);
+  position: absolute; left: 51%; top: 77%; transform: translate(-50%,-50%);
   min-width: 28%; text-align: center;
   color: #fff2bf; font-weight: 900; font-size: clamp(10px, 3vw, 14px);
   line-height: 1; text-shadow: 0 2px 2px #281000;
