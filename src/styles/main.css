@@ -159,6 +159,7 @@ body {
   flex-shrink: 0;
   background-image: url('/bg/background.jpg');
   background-size: 100% 100%;
+  background-position: center top;
   background-repeat: no-repeat;
 }
 
@@ -614,7 +615,7 @@ body {
 /* ---- 재화 바 + 배속/미션(☰) ----
    목업의 .stat-row는 top:578px/812=71.18%. */
 .stage-resource-row {
-  position: absolute; left: 8%; top: 71%; width: 62%; z-index: 3;
+  position: absolute; left: 8%; top: 69.4%; width: 62%; z-index: 3;
   display: flex; align-items: center;
 }
 .resource-bar {
@@ -639,7 +640,7 @@ body {
 .resource-pop-max { left: 85.5%; }
 
 .stage-side-controls {
-  position: absolute; right: 4%; top: 70.7%; width: 20%; z-index: 3;
+  position: absolute; right: 4%; top: 69.1%; width: 20%; z-index: 3;
   display: flex; justify-content: space-between; align-items: center;
 }
 .speed-toggle-btn, .mission-toggle-btn {
@@ -702,7 +703,7 @@ body {
 
 /* ---- 하단 버튼 행: 신화 / 소환 / 룰렛 ---- */
 .action-row {
-  position: absolute; left: 4.3%; right: 4.3%; top: 77.1%; height: 11.3%; z-index: 3;
+  position: absolute; left: 4.3%; right: 4.3%; top: 75%; height: 12.1%; z-index: 3;
   display: flex; align-items: flex-end; gap: 3%;
 }
 .side-btn {
@@ -735,7 +736,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    실제 이미지 비율과 안 맞아 letterbox되어 버튼이 얇게 보였다 - height 대신
    aspect-ratio(864/247, enhance_btn.png 실제 크기)로 정확히 맞춘다. */
 .enhance-open-btn {
-  position: absolute; left: 29.3%; width: 41.3%; top: 89.9%; z-index: 3;
+  position: absolute; left: 29.3%; width: 41.3%; top: 88.3%; z-index: 3;
   aspect-ratio: 864 / 247;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }

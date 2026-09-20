@@ -3,6 +3,14 @@ const BASE = import.meta.env.BASE_URL;
 export const BOSS_IMAGE = `${BASE}bg/boss.png`;
 export const BACKGROUND_IMAGE = `${BASE}bg/background.jpg`;
 
+// 필드에서 실제로 사용 중인 원화 파일명과 같은 이름의 8프레임 시트를 찾는다.
+// 변신형 영웅도 resolveHeroImage()가 반환한 현재 원화 기준으로 자동 연결된다.
+export function heroAnimationSheetFor(imageSource) {
+  const filename = String(imageSource ?? '').split('/').pop()?.split('?')[0] ?? '';
+  const stem = filename.replace(/\.[^.]+$/, '');
+  return stem ? `${BASE}sprites/${stem}_actions.webp` : '';
+}
+
 // background.jpg 원본 크기(688x1508)에서 실측한 좌표를 %로 변환한 값.
 // 검은 테두리로 표시돼 있던 돌판 프레임은 가로세로 비율이 6x4 칸과 정확히
 // 맞아떨어져서(512x278px) 전장 그리드 자리였다 - 보스는 그 위 빈 하늘 공간에 배치한다.

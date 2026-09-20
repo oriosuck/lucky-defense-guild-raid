@@ -1,5 +1,5 @@
 import { HEROES_BY_ID, TIER_LABEL, heroesByTier, SECOND_STAGE_IMMORTAL, IMP_HERO_ID } from '../data/heroes.js';
-import { STAGE_LAYOUT, BOSS_IMAGE, UI_IMAGES } from '../data/assets.js';
+import { STAGE_LAYOUT, BOSS_IMAGE, UI_IMAGES, heroAnimationSheetFor } from '../data/assets.js';
 import { missionDefinitions, MISSION_TOAST_SEC } from '../logic/missions.js';
 import { summonNormal, summonRoulette } from '../logic/summon.js';
 import { ROULETTE_SUCCESS_RATE, ROULETTE_COST } from '../data/heroes.js';
@@ -1034,10 +1034,13 @@ export function GameScreen({ getState, dispatch, onExit }) {
         // 몬스터 이동/보라색 소용돌이 제거와 같은 이유로 실측 확인, CLAUDE.md 참고).
         const imgStyle = `filter:${filterParts.join(' ')};`;
 
+        const resolvedHeroImage = resolveHeroImage(heroDef, occ);
         layer.appendChild(el('div', {
           class: `stage-hero-token${usingUltimate ? ' ultimate-flash' : ''}`,
           style: `left:${centerX}%; top:${top}%; width:${tokenWidth}%; height:${tokenHeight}%; z-index:${2 + slot.row};${usingUltimate ? ` --ring-delay:-${ultimateElapsedMs % 800}ms;` : ''}`,
-          'data-canvas-src': resolveHeroImage(heroDef, occ),
+          'data-canvas-src': resolvedHeroImage,
+          'data-canvas-hero-id': occ.heroId,
+          'data-canvas-sheet': heroAnimationSheetFor(resolvedHeroImage),
           'data-canvas-seed': occ.instanceId,
           'data-canvas-row': slot.row,
           'data-canvas-filter': filterParts.join(' '),
