@@ -1038,6 +1038,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
           class: `stage-hero-token${usingUltimate ? ' ultimate-flash' : ''}`,
           style: `left:${centerX}%; top:${top}%; width:${tokenWidth}%; height:${tokenHeight}%; z-index:${2 + slot.row};${usingUltimate ? ` --ring-delay:-${ultimateElapsedMs % 800}ms;` : ''}`,
           'data-canvas-src': resolveHeroImage(heroDef, occ),
+          'data-canvas-hero-id': occ.heroId,
           'data-canvas-seed': occ.instanceId,
           'data-canvas-row': slot.row,
           'data-canvas-filter': filterParts.join(' '),

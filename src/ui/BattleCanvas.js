@@ -1,6 +1,16 @@
 const MAX_DPR = 1.75;
 const TARGET_FRAME_MS = 1000 / 30;
 
+const RANGED_HINTS = [
+  'archer', 'thrower', 'ranger', 'hunter', 'eagle', 'sheriff', 'warmachine',
+  'rocketchu', 'roka', 'hailey', 'bane', 'batman', 'lancelot',
+];
+const MAGIC_HINTS = [
+  'water', 'robot', 'shock', 'storm', 'gravity', 'coldi', 'blob', 'dragon',
+  'tar', 'gigi', 'pulse', 'mage', 'monopoly', 'mama', 'frog', 'ato', 'ray',
+  'watt', 'shaman', 'penguin',
+];
+
 function numberFromPercent(value) {
   return Number.parseFloat(value || '0') / 100;
 }
@@ -12,6 +22,20 @@ function hashSeed(value = '') {
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0) / 4294967295;
+}
+
+function attackStyleFor(heroId = '') {
+  if (RANGED_HINTS.some((hint) => heroId.includes(hint))) return 'ranged';
+  if (MAGIC_HINTS.some((hint) => heroId.includes(hint))) return 'magic';
+  return 'melee';
+}
+
+function easeInOut(value) {
+  return -(Math.cos(Math.PI * value) - 1) / 2;
+}
+
+function easeOut(value) {
+  return 1 - ((1 - value) ** 3);
 }
 
 function loadImage(cache, source) {
@@ -75,6 +99,8 @@ class BattleCanvasRenderer {
     this.monsterCount = Math.min(12, Math.ceil(state.monsterCount || 0));
     this.sprites = [...stage.querySelectorAll('.stage-hero-token[data-canvas-src]')].map((node) => ({
       source: node.dataset.canvasSrc,
+      heroId: node.dataset.canvasHeroId || '',
+      attackStyle: attackStyleFor(node.dataset.canvasHeroId),
       seed: hashSeed(node.dataset.canvasSeed),
       left: numberFromPercent(node.style.left),
       top: numberFromPercent(node.style.top),
@@ -128,11 +154,19 @@ class BattleCanvasRenderer {
   }
 
   heroMotion(sprite) {
-    const phase = (this.visualTime / (1050 + sprite.seed * 650) + sprite.seed) % 1;
-    const attackPhase = phase > 0.76 ? (phase - 0.76) / 0.24 : -1;
+    const phase = (this.visualTime / (1650 + sprite.seed * 700) + sprite.seed) % 1;
+    const windup = phase >= 0.6 && phase < 0.74 ? (phase - 0.6) / 0.14 : -1;
+    const strike = phase >= 0.74 && phase < 0.86 ? (phase - 0.74) / 0.12 : -1;
+    const recover = phase >= 0.86 ? (phase - 0.86) / 0.14 : -1;
+    const windupAmount = windup >= 0 ? easeInOut(windup) : 0;
+    const strikeAmount = strike >= 0 ? easeOut(strike) : 0;
+    const recoverAmount = recover >= 0 ? 1 - easeInOut(recover) : 0;
     return {
-      attackPhase,
-      idle: Math.sin((this.visualTime / 420) + sprite.seed * Math.PI * 2),
+      windup,
+      strike,
+      windupAmount,
+      attackAmount: strike >= 0 ? strikeAmount : recoverAmount,
+      breathe: Math.sin((this.visualTime / 850) + sprite.seed * Math.PI * 2),
     };
   }
 
@@ -146,8 +180,8 @@ class BattleCanvasRenderer {
     const height = this.height * (layout.height / 100);
     const breathe = 1 + Math.sin(this.visualTime / 650) * 0.012;
     const hit = this.sprites.some((sprite) => {
-      const phase = this.heroMotion(sprite).attackPhase;
-      return phase > 0.82 && phase < 0.98;
+      const { strike } = this.heroMotion(sprite);
+      return strike > 0.72 && strike < 0.98;
     });
     if (hit && this.visualTime - this.lastImpactAt > 190) {
       this.lastImpactAt = this.visualTime;
@@ -199,10 +233,20 @@ class BattleCanvasRenderer {
     const boxHeight = this.height * sprite.height;
     const baseX = this.width * sprite.left - boxWidth / 2;
     const baseY = this.height * sprite.top;
-    const { attackPhase } = motion;
-    const idle = motion.idle * Math.min(2.5, boxHeight * 0.018);
-    const lunge = attackPhase >= 0 ? Math.sin(Math.PI * attackPhase) * Math.min(5, boxHeight * 0.05) : 0;
-    const squash = attackPhase >= 0 ? 1 - Math.sin(Math.PI * attackPhase) * 0.035 : 1;
+    const { windupAmount, attackAmount, breathe } = motion;
+    const direction = sprite.seed > 0.5 ? 1 : -1;
+    const style = sprite.attackStyle;
+    const idleScaleX = 1 + breathe * 0.004;
+    const idleScaleY = 1 - breathe * 0.003;
+    const recoil = style === 'ranged' ? -direction * attackAmount * Math.min(3, boxWidth * 0.055) : 0;
+    const shove = style === 'melee' ? direction * attackAmount * Math.min(4, boxWidth * 0.08) : 0;
+    const rotation = style === 'melee'
+      ? direction * (-windupAmount * 0.075 + attackAmount * 0.11)
+      : style === 'ranged'
+        ? direction * (windupAmount * 0.04 - attackAmount * 0.065)
+        : direction * (windupAmount * 0.025 + attackAmount * 0.04);
+    const scaleX = idleScaleX + windupAmount * 0.035 + (style === 'magic' ? attackAmount * 0.04 : 0);
+    const scaleY = idleScaleY - windupAmount * 0.045 + attackAmount * 0.015;
 
     context.save();
     context.fillStyle = 'rgba(12, 9, 7, 0.34)';
@@ -210,7 +254,7 @@ class BattleCanvasRenderer {
     context.ellipse(
       baseX + boxWidth / 2,
       baseY + boxHeight,
-      boxWidth * 0.22,
+      boxWidth * (0.22 - attackAmount * 0.018),
       Math.max(1.2, boxHeight * 0.035),
       0,
       0,
@@ -218,42 +262,63 @@ class BattleCanvasRenderer {
     );
     context.fill();
 
-    context.translate(baseX + boxWidth / 2, baseY + boxHeight - lunge);
-    context.scale(1 / squash, squash);
-    context.translate(-(baseX + boxWidth / 2), -(baseY + boxHeight - lunge));
+    const anchorX = baseX + boxWidth / 2;
+    const anchorY = baseY + boxHeight;
+    context.translate(anchorX + recoil + shove, anchorY);
+    context.rotate(rotation);
+    context.scale(scaleX, scaleY);
+    context.translate(-anchorX, -anchorY);
     context.filter = sprite.filter;
-    drawContained(context, image, baseX, baseY + idle - lunge, boxWidth, boxHeight);
+    drawContained(context, image, baseX, baseY, boxWidth, boxHeight);
     context.restore();
   }
 
   drawAttackEffect(context, sprite, motion) {
-    const { attackPhase } = motion;
-    if (attackPhase < 0.34 || attackPhase > 0.94 || !this.bossLayout) return;
-    const local = (attackPhase - 0.34) / 0.6;
+    const { strike } = motion;
+    if (strike < 0 || !this.bossLayout) return;
+    const local = strike;
     const boxWidth = this.width * sprite.width;
     const boxHeight = this.height * sprite.height;
     const startX = this.width * sprite.left;
     const startY = this.height * sprite.top + boxHeight * 0.42;
     const bossX = this.width * ((this.bossLayout.left + this.bossLayout.width / 2) / 100);
     const bossY = this.height * ((this.bossLayout.top + this.bossLayout.height * 0.58) / 100);
-    const progress = 1 - ((1 - local) ** 3);
-    const endX = startX + (bossX - startX) * progress;
-    const endY = startY + (bossY - startY) * progress;
     const alpha = local < 0.7 ? 1 : (1 - local) / 0.3;
 
     context.save();
-    context.globalAlpha = Math.max(0, alpha) * 0.72;
-    const gradient = context.createLinearGradient(startX, startY, endX, endY);
-    gradient.addColorStop(0, 'rgba(255, 227, 113, 0)');
-    gradient.addColorStop(0.6, '#ffe071');
-    gradient.addColorStop(1, '#fffbd7');
-    context.strokeStyle = gradient;
-    context.lineWidth = Math.max(1.2, boxWidth * 0.035);
+    context.globalAlpha = Math.max(0, alpha) * 0.78;
     context.lineCap = 'round';
-    context.beginPath();
-    context.moveTo(startX, startY);
-    context.lineTo(endX, endY);
-    context.stroke();
+
+    // 공격 이펙트는 캐릭터 주변에서만 끝난다. 보스까지 이어지는 직선/투사체는
+    // 사용하지 않고, 캐릭터 자체의 움직임을 보조하는 짧은 잔상만 그린다.
+    if (sprite.attackStyle === 'melee') {
+      const direction = sprite.seed > 0.5 ? 1 : -1;
+      const radius = Math.max(7, boxWidth * 0.42);
+      context.strokeStyle = '#fff0ae';
+      context.lineWidth = Math.max(1.5, boxWidth * 0.045);
+      context.beginPath();
+      if (direction > 0) {
+        context.arc(startX, startY, radius, Math.PI * 0.85, Math.PI * (0.85 + local * 0.7));
+      } else {
+        context.arc(startX, startY, radius, Math.PI * (0.15 - local * 0.7), Math.PI * 0.15);
+      }
+      context.stroke();
+    } else if (sprite.attackStyle === 'ranged') {
+      const radius = 2 + Math.sin(local * Math.PI) * Math.max(3, boxWidth * 0.12);
+      context.fillStyle = '#fff3a8';
+      context.beginPath();
+      context.arc(startX, startY, radius, 0, Math.PI * 2);
+      context.fill();
+    } else {
+      const radius = 4 + local * Math.max(8, boxWidth * 0.32);
+      context.strokeStyle = '#cfb2ff';
+      context.lineWidth = Math.max(1.2, boxWidth * 0.035);
+      context.beginPath();
+      context.arc(startX, startY, radius, 0, Math.PI * 2);
+      context.stroke();
+    }
+
+    // 타격 순간 보스에는 짧은 피격 링만 표시한다. 공격 경로는 그리지 않는다.
     if (local > 0.78) {
       const impact = (local - 0.78) / 0.22;
       context.globalAlpha = 1 - impact;
