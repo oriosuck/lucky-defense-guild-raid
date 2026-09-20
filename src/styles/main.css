@@ -167,20 +167,20 @@ body {
    승인 시안에서 텍스트를 제거해 분리한 투명 명패 자산 위에 실제 웨이브/시간을 얹는다.
    장식과 텍스트가 분리되어 있으므로 상태가 바뀌어도 시안의 외형을 그대로 유지한다. */
 .top-badge {
-  position: absolute; left: 22%; top: .25%; width: 56%; aspect-ratio: 1883 / 835; z-index: 3;
+  position: absolute; left: 25%; top: .55%; width: 50%; aspect-ratio: 1410 / 480; z-index: 3;
   box-sizing: border-box;
-  background: url('/ui/wave_plaque.webp') center / contain no-repeat;
+  background: url('/ui/reference_timer_plaque.webp') center / contain no-repeat;
   border: 0;
   color: #fff; text-align: center;
 }
 .top-badge-label {
-  position: absolute; left: 30%; right: 30%; top: 25%;
+  position: absolute; left: 30%; right: 30%; top: 26%;
   font-size: clamp(9px, 2.8vw, 13px); font-weight: 900; letter-spacing: .04em;
   text-shadow: 0 2px 1px #000;
 }
 .top-badge-value {
-  position: absolute; left: 21%; right: 21%; top: 47%;
-  font-size: clamp(20px, 6.1vw, 29px); line-height: 1; font-weight: 900; color: #fff;
+  position: absolute; left: 21%; right: 21%; top: 50%;
+  font-size: clamp(19px, 5.8vw, 28px); line-height: 1; font-weight: 900; color: #fff;
   text-shadow: 0 3px 1px #17110e, 1px 0 #17110e, -1px 0 #17110e;
 }
 
@@ -195,25 +195,28 @@ body {
   aspect-ratio: 862 / 184;
 }
 .boss-health-row {
-  position: absolute; left: 15%; top: 15.2%; width: 70%; height: 3.25%; z-index: 3;
-  display: flex; align-items: center; gap: 1.5%; box-sizing: border-box;
-  padding: 0 2% 0 1%;
-  background: linear-gradient(180deg, #3b201f, #190e11);
-  border: 2px solid #281611;
-  border-radius: 6px 12px 12px 6px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 3px 5px rgba(0,0,0,.42);
+  position: absolute; left: 12%; top: 11.2%; width: 76%; aspect-ratio: 1640 / 260; z-index: 3;
+  box-sizing: border-box;
+  background: url('/ui/reference_boss_bar.webp') center / 100% 100% no-repeat;
 }
 .boss-health-emblem {
-  width: 10%; aspect-ratio: 1; margin-left: -7%;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; color: #16090b; font-size: clamp(11px, 3.4vw, 17px); font-weight: 900;
-  background: linear-gradient(180deg, #ff3b4f, #b70f28);
-  border: 2px solid #2b1017;
-  box-shadow: 0 2px 3px rgba(0,0,0,.5);
+  display: none;
 }
-.boss-health-label { color: #fff; font-size: clamp(9px, 2.6vw, 13px); font-weight: 900; white-space: nowrap; text-shadow: 0 2px #000; }
-.boss-health-track { position: relative; flex: 1; height: 58%; overflow: hidden; background: #2b0d12; border: 1px solid #080405; border-radius: 3px; }
-.boss-health-fill { display: block; height: 100%; border-radius: 2px; background: linear-gradient(180deg, #ff4b55 0 40%, #d90b2c 42% 100%); box-shadow: inset 0 2px rgba(255,255,255,.28); transition: width .2s linear; }
+.boss-health-label {
+  position: absolute; left: 12.5%; top: 27%; width: 10%;
+  color: #fff; font-size: clamp(9px, 2.6vw, 13px); font-weight: 900;
+  white-space: nowrap; text-align: center; text-shadow: 0 2px #000;
+}
+.boss-health-track {
+  position: absolute; left: 22%; right: 4.2%; top: 30%; height: 40%; overflow: hidden;
+  border-radius: 3px;
+}
+.boss-health-fill {
+  display: block; height: 100%; border-radius: 2px;
+  background: linear-gradient(180deg, #ff5560 0 38%, #ec1738 40% 100%);
+  box-shadow: inset 0 2px rgba(255,255,255,.35), 0 0 5px rgba(255,40,55,.45);
+  transition: width .2s linear;
+}
 /* 텍스트를 flex+padding으로 어림잡아 중앙에 두면 해골 메달 쪽으로 살짝 치우쳐 보였다 -
    이미지를 실측(해골 메달 0.9~20%, 남은 어두운 바 20.5~98.5%)해서 바 부분의 정확한
    구간만 잘라 그 안에서 text-align:center로 정렬한다. */
@@ -773,6 +776,55 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
   border: none; background: transparent; padding: 0; cursor: pointer;
 }
 .enhance-open-btn img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ---- 승인 시안 기반 신규 하단 HUD ----
+   기존 버튼 PNG 네 장을 조합하지 않고, 시안의 한 덩어리 같은 명령 패널을 새로 제작했다.
+   배경 자산은 장식만 담당하고 숫자/비용/클릭은 실제 DOM이 담당한다. */
+.command-deck {
+  position: absolute; left: 1%; right: 1%; top: 72.3%; height: 27.2%; z-index: 4;
+  background: url('/ui/reference_command_hud.webp') center / 100% 100% no-repeat;
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,.34));
+  pointer-events: none;
+}
+.command-resource-values { position: absolute; inset: 0; pointer-events: none; }
+.command-resource {
+  position: absolute; top: 18.3%; height: 9%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff8e7; font-weight: 900; font-size: clamp(11px, 3.25vw, 16px);
+  line-height: 1; white-space: nowrap;
+  text-shadow: 0 2px 1px #160d09, 1px 0 #160d09, -1px 0 #160d09;
+}
+.command-gold { left: 24%; width: 14%; }
+.command-luckstone { left: 51%; width: 12%; }
+.command-population { left: 76%; width: 14%; }
+.command-hit {
+  position: absolute; padding: 0; border: 0; background: transparent;
+  cursor: pointer; pointer-events: auto; color: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+.command-hit:active { transform: translateY(2px) scale(.985); }
+.command-hit:focus-visible { outline: 3px solid #ffe06a; outline-offset: -3px; }
+.command-mythic { left: 6.2%; top: 33.4%; width: 23.7%; height: 37.8%; }
+.command-summon { left: 30.4%; top: 33.2%; width: 39.4%; height: 38.3%; }
+.command-roulette { left: 70.1%; top: 33.5%; width: 23.6%; height: 37.8%; }
+.command-enhance { left: 29%; top: 72.2%; width: 42%; height: 20.7%; }
+.command-hit.is-disabled { cursor: not-allowed; filter: grayscale(.35); opacity: .55; }
+.command-badge {
+  position: absolute; right: 8%; top: 1%; min-width: 17px; padding: 1px 4px;
+  border-radius: 999px; background: #eb3d35; border: 2px solid #fff0dc;
+  color: #fff; font-size: 9px; font-weight: 900; line-height: 1.25;
+  box-shadow: 0 2px 3px rgba(0,0,0,.42);
+}
+.command-summon-cost {
+  position: absolute; left: 49%; top: 68%; transform: translate(-50%,-50%);
+  min-width: 28%; text-align: center;
+  color: #fff2bf; font-weight: 900; font-size: clamp(10px, 3vw, 14px);
+  line-height: 1; text-shadow: 0 2px 2px #281000;
+}
+
+/* 새 명령 패널과 겹치지 않도록 배속/미션은 재화 바 오른쪽의 작은 보조 조작으로 둔다. */
+.stage-side-controls { right: 2.2%; top: 74.6%; width: 10.5%; z-index: 6; }
+
 
 /* ==== 팝업 공통 ==== */
 .game-popup {

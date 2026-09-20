@@ -443,7 +443,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
   function renderStage(state) {
     const stage = el('div', { class: 'game-stage' });
     stage.appendChild(renderTopBadge(state));
-    stage.appendChild(renderMonsterRow(state));
     stage.appendChild(renderBossHealth(state));
     stage.appendChild(renderBossBadge(state));
     const holeEffects = renderHoleEffects(state);
@@ -459,10 +458,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
     if (chadArrows) stage.appendChild(chadArrows);
     stage.appendChild(renderFavoriteBar(state));
     stage.appendChild(renderStageControls(state));
-    stage.appendChild(renderResourceRow(state));
     stage.appendChild(renderSideControls(state));
-    stage.appendChild(renderActionRow(state));
-    stage.appendChild(renderEnhanceOpenBtn(state));
+    stage.appendChild(renderCommandDeck(state));
     const raySwordBanner = renderRaySwordBanner(state);
     if (raySwordBanner) stage.appendChild(raySwordBanner);
     const missionToast = renderMissionToast(state);
@@ -486,16 +483,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
     return el('div', { class: 'top-badge' }, [
       el('span', { class: 'top-badge-label', text: `WAVE ${state.wave}` }),
       el('span', { class: 'top-badge-value', text: formatClock(state.waveTimeLeft) }),
-    ]);
-  }
-
-  // 몬스터 카운트는 필드 누적치(state.monsterCount, 최대 state.monsterMax=110)를
-  // 그대로 보여준다 - 라운드당 40마리(MONSTER_PER_ROUND)는 매 라운드 이 누적치에
-  // 트리클로 더해지는 "증가분"일 뿐, 화면에 표시되는 최대값과는 다른 개념이다
-  // (waveEvents.js의 tickWave 참고). 헷갈려서 한 번 40을 최대값으로 잘못 표시했었다.
-  function renderMonsterRow(state) {
-    return el('div', { class: 'monster-row' }, [
-      el('span', { class: 'monster-count-text', text: `${displayMonsterCount(state)} / ${state.monsterMax}` }),
     ]);
   }
 
@@ -1530,22 +1517,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
     deferredRender(getState());
   }
 
-  // resource_bar.png("재화 및 맵 카운트 바.png")에는 코인/행운석/인원 아이콘과 "/" 구분자가
-  // 전부 그림 안에 이미 박혀있다(빈 값 없이 장식으로만). 텍스트를 각 아이콘 자리 위에 그대로
-  // 얹으면 숫자가 아이콘과 겹쳐서 안 보이는 문제가 있었다 - 실측(bbox 스캔)한 아이콘 위치
-  // 기준으로 각 숫자를 아이콘 "다음" 빈 공간에 배치했다. 인원 칸은 그림에 이미 "/"가 있어서
-  // 직접 만든 텍스트에 "/"를 또 넣지 않고, 그 "/" 좌우로 현재/최대값만 나눠서 배치한다.
-  function renderResourceRow(state) {
-    return el('div', { class: 'stage-resource-row' }, [
-      el('div', { class: 'resource-bar' }, [
-        el('span', { class: 'resource-value resource-gold', text: `${Math.floor(state.gold)}` }),
-        el('span', { class: 'resource-value resource-luckstone', text: `${state.luckstone}` }),
-        el('span', { class: 'resource-value resource-pop-current', text: `${fieldOccupantCount(state)}` }),
-        el('span', { class: 'resource-value resource-pop-max', text: `${state.fieldMaxCapacity}` }),
-      ]),
-    ]);
-  }
-
   function renderSideControls(state) {
     return el('div', { class: 'stage-side-controls' }, [
       el('button', {
@@ -1562,6 +1533,40 @@ export function GameScreen({ getState, dispatch, onExit }) {
         title: '미션',
         text: '☰',
         onclick: () => openPopup('mission', state),
+      }),
+    ]);
+  }
+
+  // 승인 시안의 하단 HUD를 하나의 통일된 새 프레임으로 사용한다. 숫자와 클릭 영역은
+  // 이미지에 굽지 않고 실제 상태/기능을 그대로 연결해 시안의 외형과 게임 동작을 분리한다.
+  function renderCommandDeck(state) {
+    const mythicBadgeCount = craftableMythicCount(state);
+    const summonDisabled = state.gold < state.normalSummonCost
+      || fieldOccupantCount(state) >= state.fieldMaxCapacity
+      || isFieldPhysicallyFull(state);
+
+    return el('div', { class: 'command-deck' }, [
+      el('div', { class: 'command-resource-values', 'aria-label': '보유 재화와 필드 인원' }, [
+        el('span', { class: 'command-resource command-gold', text: `${Math.floor(state.gold)}` }),
+        el('span', { class: 'command-resource command-luckstone', text: `${state.luckstone}` }),
+        el('span', { class: 'command-resource command-population', text: `${fieldOccupantCount(state)} / ${state.fieldMaxCapacity}` }),
+      ]),
+      el('button', {
+        class: 'command-hit command-mythic', title: '신화',
+        onclick: () => { ui.mythicSelectedId = null; openPopup('mythic', state); },
+      }, [el('span', { class: 'command-badge', text: String(mythicBadgeCount) })]),
+      el('button', {
+        class: `command-hit command-summon${summonDisabled ? ' is-disabled' : ''}`,
+        title: '소환', disabled: summonDisabled,
+        onclick: () => apply(summonNormal(state)),
+      }, [el('span', { class: 'command-summon-cost', text: `${state.normalSummonCost}G` })]),
+      el('button', {
+        class: 'command-hit command-roulette', title: '룰렛',
+        onclick: () => openPopup('roulette', state),
+      }),
+      el('button', {
+        class: 'command-hit command-enhance', title: '강화',
+        onclick: () => openPopup('enhance', state),
       }),
     ]);
   }
@@ -1593,42 +1598,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
       return `기가채드 진행도: ${pct}%`;
     }
     return null;
-  }
-
-  function renderActionRow(state) {
-    const mythicBadgeCount = craftableMythicCount(state);
-    return el('div', { class: 'action-row' }, [
-      el('button', {
-        class: 'side-btn', title: '신화',
-        onclick: () => { ui.mythicSelectedId = null; openPopup('mythic', state); },
-      }, [
-        el('img', { src: UI_IMAGES.mythicBtn, alt: '신화' }),
-        el('span', { class: 'hex-badge', text: String(mythicBadgeCount) }),
-      ]),
-      el('button', {
-        class: 'summon-btn-wrap', title: '소환',
-        // 임프가 칸을 다 채운 경우(인원수엔 안 잡히지만 물리적으로 자리가 없는
-        // 상태)도 같이 막는다(사용자 지적 - "임프 포함 필드가 꽉차면 마리수가
-        // 남아도 소환이 안되어야해").
-        disabled: state.gold < state.normalSummonCost || fieldOccupantCount(state) >= state.fieldMaxCapacity
-          || isFieldPhysicallyFull(state),
-        onclick: () => apply(summonNormal(state)),
-      }, [
-        el('img', { src: UI_IMAGES.summonBtn, alt: '소환' }),
-        el('span', { class: 'summon-cost-overlay', text: `${state.normalSummonCost}G` }),
-      ]),
-      el('button', {
-        class: 'side-btn', title: '룰렛',
-        onclick: () => openPopup('roulette', state),
-      }, [el('img', { src: UI_IMAGES.rouletteBtn, alt: '룰렛' })]),
-    ]);
-  }
-
-  function renderEnhanceOpenBtn(state) {
-    return el('button', {
-      class: 'enhance-open-btn', title: '강화',
-      onclick: () => openPopup('enhance', state),
-    }, [el('img', { src: UI_IMAGES.enhanceBtn, alt: '강화' })]);
   }
 
   // 룰렛 휠은 이미지 대신 목업처럼 CSS로 직접 그린 원 + 등급 라벨 텍스트로 표시한다
