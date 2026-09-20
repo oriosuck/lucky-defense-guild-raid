@@ -195,7 +195,7 @@ body {
   aspect-ratio: 862 / 184;
 }
 .boss-health-row {
-  position: absolute; left: 12%; top: 11.2%; width: 76%; aspect-ratio: 1640 / 260; z-index: 3;
+  position: absolute; left: 17.5%; top: 9.5%; width: 65%; aspect-ratio: 1640 / 260; z-index: 3;
   box-sizing: border-box;
   background: url('/ui/reference_boss_bar.webp') center / 100% 100% no-repeat;
 }
@@ -781,7 +781,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
    기존 버튼 PNG 네 장을 조합하지 않고, 시안의 한 덩어리 같은 명령 패널을 새로 제작했다.
    배경 자산은 장식만 담당하고 숫자/비용/클릭은 실제 DOM이 담당한다. */
 .command-deck {
-  position: absolute; left: 1%; right: 1%; top: 72.3%; height: 27.2%; z-index: 4;
+  position: absolute; left: 7.5%; right: 7.5%; top: 72.3%; height: 27.2%; z-index: 4;
   background: url('/ui/reference_command_hud.webp') center / 100% 100% no-repeat;
   filter: drop-shadow(0 4px 4px rgba(0,0,0,.34));
   pointer-events: none;
