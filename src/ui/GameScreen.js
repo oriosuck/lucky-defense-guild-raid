@@ -55,7 +55,11 @@ export function GameScreen({ getState, dispatch, onExit }) {
     class: 'battle-canvas',
     'aria-label': '필드 캐릭터와 몬스터 전투 화면',
   });
-  const battleRenderer = createBattleCanvas(battleCanvas, { monsterSrc: UI_IMAGES.monsterIcon });
+  const battleRenderer = createBattleCanvas(battleCanvas, {
+    monsterSrc: UI_IMAGES.monsterIcon,
+    bossSrc: BOSS_IMAGE,
+    bossLayout: STAGE_LAYOUT.boss,
+  });
   const ui = {
     selectedSlot: null, // {row,col} | null - 선택 기준은 개체가 아니라 칸 자체
     popup: null, // null | 'mythic' | 'roulette' | 'enhance' | 'mission'
@@ -436,7 +440,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     const stage = el('div', { class: 'game-stage' });
     stage.appendChild(renderTopBadge(state));
     stage.appendChild(renderMonsterRow(state));
-    stage.appendChild(renderBoss(state));
+    stage.appendChild(renderBossBadge(state));
     const holeEffects = renderHoleEffects(state);
     if (holeEffects) stage.appendChild(holeEffects);
     if (battleRenderer.supported) stage.appendChild(battleCanvas);
@@ -490,15 +494,15 @@ export function GameScreen({ getState, dispatch, onExit }) {
     ]);
   }
 
-  function renderBoss(state) {
+  function renderBossBadge(state) {
     const raid = state.bossRaidWindow;
     const raidLabel = raid ? (raid.open ? '레이드 창 열림!' : '몬스터 소탕 대기 중') : null;
-    const boss = el('div', {
+    const bossHud = el('div', {
       class: 'stage-boss',
       style: `left:${STAGE_LAYOUT.boss.left}%; top:${STAGE_LAYOUT.boss.top}%; width:${STAGE_LAYOUT.boss.width}%; height:${STAGE_LAYOUT.boss.height}%;`,
-    }, [el('img', { class: 'stage-boss-img', src: BOSS_IMAGE, alt: '보스' })]);
-    if (raidLabel) boss.appendChild(el('span', { class: `raid-window-badge ${raid.open ? 'open' : ''}`, text: raidLabel }));
-    return boss;
+    });
+    if (raidLabel) bossHud.appendChild(el('span', { class: `raid-window-badge ${raid.open ? 'open' : ''}`, text: raidLabel }));
+    return bossHud;
   }
 
   // 좌우 굴 보라색 소용돌이는 성능 문제로 제거했다(사용자 요청 - conic-gradient

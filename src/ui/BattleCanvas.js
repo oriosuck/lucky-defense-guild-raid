@@ -39,11 +39,13 @@ function drawContained(context, image, x, y, width, height) {
 }
 
 class BattleCanvasRenderer {
-  constructor(canvas, { monsterSrc }) {
+  constructor(canvas, { monsterSrc, bossSrc, bossLayout }) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d', { alpha: true, desynchronized: true });
     this.supported = Boolean(this.context);
     this.monsterSrc = monsterSrc;
+    this.bossSrc = bossSrc;
+    this.bossLayout = bossLayout;
     this.imageCache = new Map();
     this.sprites = [];
     this.monsterCount = 0;
@@ -114,8 +116,51 @@ class BattleCanvasRenderer {
   draw() {
     const context = this.context;
     context.clearRect(0, 0, this.width, this.height);
+    this.drawBoss(context);
     this.drawMonsters(context);
-    for (const sprite of this.sprites) this.drawHero(context, sprite);
+    for (const sprite of this.sprites) {
+      const motion = this.heroMotion(sprite);
+      this.drawHero(context, sprite, motion);
+      this.drawAttackEffect(context, sprite, motion);
+    }
+  }
+
+  heroMotion(sprite) {
+    const phase = (this.visualTime / (1050 + sprite.seed * 650) + sprite.seed) % 1;
+    const attackPhase = phase > 0.76 ? (phase - 0.76) / 0.24 : -1;
+    return {
+      attackPhase,
+      idle: Math.sin((this.visualTime / 420) + sprite.seed * Math.PI * 2),
+    };
+  }
+
+  drawBoss(context) {
+    const boss = loadImage(this.imageCache, this.bossSrc);
+    if (!boss?.complete || !this.bossLayout) return;
+    const layout = this.bossLayout;
+    const x = this.width * (layout.left / 100);
+    const y = this.height * (layout.top / 100);
+    const width = this.width * (layout.width / 100);
+    const height = this.height * (layout.height / 100);
+    const breathe = 1 + Math.sin(this.visualTime / 650) * 0.012;
+    const hit = this.sprites.some((sprite) => {
+      const phase = this.heroMotion(sprite).attackPhase;
+      return phase > 0.82 && phase < 0.98;
+    });
+
+    context.save();
+    context.fillStyle = 'rgba(8, 7, 10, 0.34)';
+    context.beginPath();
+    context.ellipse(x + width / 2, y + height * 0.94, width * 0.29, height * 0.08, 0, 0, Math.PI * 2);
+    context.fill();
+    context.translate(x + width / 2, y + height);
+    context.scale(1 / breathe, breathe);
+    context.translate(-(x + width / 2), -(y + height));
+    context.filter = hit
+      ? 'brightness(1.55) drop-shadow(0 0 10px rgba(255, 207, 78, .9)) drop-shadow(0 6px 8px rgba(0, 0, 0, .45))'
+      : 'drop-shadow(0 6px 8px rgba(0, 0, 0, .45))';
+    drawContained(context, boss, x, y, width, height);
+    context.restore();
   }
 
   drawMonsters(context) {
@@ -141,24 +186,23 @@ class BattleCanvasRenderer {
     }
   }
 
-  drawHero(context, sprite) {
+  drawHero(context, sprite, motion) {
     const image = loadImage(this.imageCache, sprite.source);
     if (!image?.complete) return;
     const boxWidth = this.width * sprite.width;
     const boxHeight = this.height * sprite.height;
     const baseX = this.width * sprite.left - boxWidth / 2;
     const baseY = this.height * sprite.top;
-    const phase = (this.visualTime / (1050 + sprite.seed * 650) + sprite.seed) % 1;
-    const idle = Math.sin((this.visualTime / 420) + sprite.seed * Math.PI * 2) * Math.min(2.5, boxHeight * 0.018);
-    const attackPhase = phase > 0.76 ? (phase - 0.76) / 0.24 : -1;
-    const lunge = attackPhase >= 0 ? Math.sin(Math.PI * attackPhase) * Math.min(7, boxWidth * 0.14) : 0;
+    const { attackPhase } = motion;
+    const idle = motion.idle * Math.min(2.5, boxHeight * 0.018);
+    const lunge = attackPhase >= 0 ? Math.sin(Math.PI * attackPhase) * Math.min(5, boxHeight * 0.05) : 0;
     const squash = attackPhase >= 0 ? 1 - Math.sin(Math.PI * attackPhase) * 0.035 : 1;
 
     context.save();
     context.fillStyle = 'rgba(12, 9, 7, 0.34)';
     context.beginPath();
     context.ellipse(
-      baseX + boxWidth / 2 + lunge,
+      baseX + boxWidth / 2,
       baseY + boxHeight,
       boxWidth * 0.22,
       Math.max(1.2, boxHeight * 0.035),
@@ -168,11 +212,51 @@ class BattleCanvasRenderer {
     );
     context.fill();
 
-    context.translate(baseX + boxWidth / 2 + lunge, baseY + boxHeight);
+    context.translate(baseX + boxWidth / 2, baseY + boxHeight - lunge);
     context.scale(1 / squash, squash);
-    context.translate(-(baseX + boxWidth / 2 + lunge), -(baseY + boxHeight));
+    context.translate(-(baseX + boxWidth / 2), -(baseY + boxHeight - lunge));
     context.filter = sprite.filter;
-    drawContained(context, image, baseX + lunge, baseY + idle, boxWidth, boxHeight);
+    drawContained(context, image, baseX, baseY + idle - lunge, boxWidth, boxHeight);
+    context.restore();
+  }
+
+  drawAttackEffect(context, sprite, motion) {
+    const { attackPhase } = motion;
+    if (attackPhase < 0.34 || attackPhase > 0.94 || !this.bossLayout) return;
+    const local = (attackPhase - 0.34) / 0.6;
+    const boxWidth = this.width * sprite.width;
+    const boxHeight = this.height * sprite.height;
+    const startX = this.width * sprite.left;
+    const startY = this.height * sprite.top + boxHeight * 0.42;
+    const bossX = this.width * ((this.bossLayout.left + this.bossLayout.width / 2) / 100);
+    const bossY = this.height * ((this.bossLayout.top + this.bossLayout.height * 0.58) / 100);
+    const progress = 1 - ((1 - local) ** 3);
+    const endX = startX + (bossX - startX) * progress;
+    const endY = startY + (bossY - startY) * progress;
+    const alpha = local < 0.7 ? 1 : (1 - local) / 0.3;
+
+    context.save();
+    context.globalAlpha = Math.max(0, alpha) * 0.72;
+    const gradient = context.createLinearGradient(startX, startY, endX, endY);
+    gradient.addColorStop(0, 'rgba(255, 227, 113, 0)');
+    gradient.addColorStop(0.6, '#ffe071');
+    gradient.addColorStop(1, '#fffbd7');
+    context.strokeStyle = gradient;
+    context.lineWidth = Math.max(1.2, boxWidth * 0.035);
+    context.lineCap = 'round';
+    context.beginPath();
+    context.moveTo(startX, startY);
+    context.lineTo(endX, endY);
+    context.stroke();
+    if (local > 0.78) {
+      const impact = (local - 0.78) / 0.22;
+      context.globalAlpha = 1 - impact;
+      context.strokeStyle = '#fff4a8';
+      context.lineWidth = 2;
+      context.beginPath();
+      context.arc(bossX, bossY, 5 + impact * 18, 0, Math.PI * 2);
+      context.stroke();
+    }
     context.restore();
   }
 
