@@ -36,7 +36,7 @@ import {
 import { IMMOBILIZE_GAUGE_FILL_SEC, DELETE_START_AT_TIME_LEFT, DELETE_TRIGGER_AT_TIME_LEFT, INDY_TREASURE_INTERVAL_SEC, isInstanceStunned } from '../logic/waveEvents.js';
 import { GLOBAL_ENHANCE_TRACKS, GLOBAL_ENHANCE_LABEL, GLOBAL_ENHANCE_MAX_LEVEL } from '../data/constants.js';
 import { RAY_SWORD_TIER_LABEL, RAY_SWORD_TIER_COLOR, RAY_SWORD_CRAFT_MAX } from '../data/raySwords.js';
-import { fieldOccupantCount, isFieldPhysicallyFull, FIELD_ROWS, FIELD_COLS } from '../state/gameState.js';
+import { fieldOccupantCount, isFieldPhysicallyFull, FIELD_ROWS, FIELD_COLS, TOTAL_WAVES, waveDuration } from '../state/gameState.js';
 import { el } from './components/dom.js';
 import { heroImage, resolveHeroImage } from './components/heroVisual.js';
 import { createBattleCanvas } from './BattleCanvas.js';
@@ -99,6 +99,11 @@ export function GameScreen({ getState, dispatch, onExit }) {
   // 배경 원본 비율(688:1508)을 유지한다 - 순수 CSS만으로는 뷰포트 비율에 따라 눌려 보이는
   // 문제가 있어서 실측 후 픽셀로 못박는다(CLAUDE.md 참고).
   const STAGE_RATIO = 688 / 1508;
+  const RAID_WAVE_DURATIONS = Array.from({ length: TOTAL_WAVES }, (_, i) => waveDuration(i + 1));
+  const RAID_ELAPSED_BEFORE_WAVE = RAID_WAVE_DURATIONS.map((_, index) => (
+    RAID_WAVE_DURATIONS.slice(0, index).reduce((sum, duration) => sum + duration, 0)
+  ));
+  const TOTAL_RAID_DURATION = RAID_WAVE_DURATIONS.reduce((sum, duration) => sum + duration, 0);
 
   // 뷰포트 비율이 STAGE_RATIO와 안 맞을 때 "cover"(꽉 채우고 넘치는 부분 자르기)로
   // 바꿔봤었는데, 카카오톡 인앱 브라우저 같은 환경에서 위쪽 UI(상단 배지)가 통째로
@@ -488,12 +493,15 @@ export function GameScreen({ getState, dispatch, onExit }) {
     ]);
   }
 
-  // 이 게임 상태에는 별도의 보스 HP 수치가 없으므로 전투 진행 시간을 보스 게이지로
-  // 시각화한다. 실제로 존재하지 않는 데미지 수치를 꾸며내지 않으면서도 참고 UI의
-  // 굵은 빨간 보스 바를 유지하고, 라운드가 진행될수록 자연스럽게 줄어든다.
+  // 별도 데미지 수치가 없는 게임이라 전체 레이드 진행 시간을 보스 HP로 시각화한다.
+  // 예전에는 "현재 웨이브 남은 시간"만 사용해서 일반 웨이브마다 30초 만에 0이 된 뒤
+  // 다음 웨이브에서 다시 100%로 튀었다. 이제 1~20웨이브 전체 시간을 분모로 사용해
+  // 한 판 동안 끊기거나 회복되지 않고 끝까지 연속해서 감소한다.
   function renderBossHealth(state) {
-    const duration = state.wave === 10 || state.wave === 20 ? 150 : (state.wave === 0 ? 5 : 30);
-    const progress = Math.max(0, Math.min(100, (state.waveTimeLeft / duration) * 100));
+    const completedDuration = state.wave > 0 ? RAID_ELAPSED_BEFORE_WAVE[state.wave - 1] ?? 0 : 0;
+    const currentDuration = state.wave > 0 ? waveDuration(state.wave) : 0;
+    const currentElapsed = state.wave > 0 ? Math.max(0, currentDuration - state.waveTimeLeft) : 0;
+    const progress = Math.max(0, Math.min(100, 100 * (1 - (completedDuration + currentElapsed) / TOTAL_RAID_DURATION)));
     return el('div', { class: 'boss-health-row', 'aria-label': `보스 전투 진행 ${Math.round(progress)}%` }, [
       el('span', { class: 'boss-health-emblem', text: '☠' }),
       el('span', { class: 'boss-health-label', text: '보스' }),
@@ -783,9 +791,13 @@ export function GameScreen({ getState, dispatch, onExit }) {
   const HERO_TOKEN_HEIGHT_RATIO = 0.95;
   const HERO_TOKEN_WIDTH_RATIO = 0.52;
   const IMP_TOKEN_SCALE = 0.5; // 마마 임프는 다른 캐릭터의 절반 크기(사용자 지적 - 너무 컸음)
-  // 기본 크기가 커진 만큼 배율을 재조정했다. 최종 신화/불멸 크기는 이전보다 약 9%
-  // 커지되 일반 캐릭터와 달리 한 칸을 지나치게 덮지 않는다.
-  const MYTHIC_TOKEN_SCALE = 1.55;
+  // 신화/불멸은 보정값이 너무 낮아 일반만 하게 보이던 개체가 없도록 최소값을 두고,
+  // 서로의 체급 차이가 과도하지 않게 최댓값도 제한한다. 전설 역시 일반~영웅보다
+  // 작아지지 않도록 별도의 최소 보정값을 적용한다.
+  const MYTHIC_TOKEN_SCALE = 1.65;
+  const MYTHIC_COMPENSATION_MIN = 1.10;
+  const MYTHIC_COMPENSATION_MAX = 1.22;
+  const LEGENDARY_COMPENSATION_MIN = 1.35;
   // "신화들 크기가 다 다르고 불멸 크기가 다 다르다 - 일반~전설은 전기로봇 크기,
   // 신화/불멸은 인디 크기로 맞춰달라"는 사용자 지정에 따라 크기 보정 체계를
   // 처음 도입했었는데(높이를 정확히 맞추는 공식), 실제로 배포해보니 "높이를
@@ -974,11 +986,16 @@ export function GameScreen({ getState, dispatch, onExit }) {
       const firstHeroTier = HEROES_BY_ID[slot.occupants[0].heroId]?.tier;
       const isImpCell = slot.occupants[0].heroId === IMP_HERO_ID;
       const isMythicCell = firstHeroTier === 'mythic' || firstHeroTier === 'immortal';
+      const rawCompensation = isMythicCell
+        ? MYTHIC_SIZE_COMPENSATION[slot.occupants[0].heroId] ?? 1
+        : TIER_SIZE_COMPENSATION[slot.occupants[0].heroId] ?? 1;
       const sizeScale = isImpCell
         ? IMP_TOKEN_SCALE
         : isMythicCell
-          ? MYTHIC_TOKEN_SCALE * (MYTHIC_SIZE_COMPENSATION[slot.occupants[0].heroId] ?? 1)
-          : TIER_SIZE_COMPENSATION[slot.occupants[0].heroId] ?? 1;
+          ? MYTHIC_TOKEN_SCALE * Math.max(MYTHIC_COMPENSATION_MIN, Math.min(MYTHIC_COMPENSATION_MAX, rawCompensation))
+          : firstHeroTier === 'legendary'
+            ? Math.max(LEGENDARY_COMPENSATION_MIN, rawCompensation)
+            : rawCompensation;
       const tokenHeight = rect.height * HERO_TOKEN_HEIGHT_RATIO * sizeScale;
       const n = slot.occupants.length;
       // 발끝(박스 하단) 기준선: 일반~영웅은 칸 정중앙(사용자 지정) - 마리 수와
