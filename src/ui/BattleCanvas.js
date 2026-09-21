@@ -62,23 +62,67 @@ function drawContained(context, image, x, y, width, height) {
   );
 }
 
-function drawSheetFrame(context, image, frameIndex, x, y, width, height) {
+function sheetContentBounds(cache, source, image) {
+  if (cache.has(source)) return cache.get(source);
+  if (!image?.complete || !image.naturalWidth || !image.naturalHeight) return null;
+  const columns = 4;
+  const rows = 2;
+  const frameWidth = image.naturalWidth / columns;
+  const frameHeight = image.naturalHeight / rows;
+  try {
+    const scanCanvas = document.createElement('canvas');
+    scanCanvas.width = image.naturalWidth;
+    scanCanvas.height = image.naturalHeight;
+    const scanContext = scanCanvas.getContext('2d', { willReadFrequently: true });
+    scanContext.drawImage(image, 0, 0);
+    const pixels = scanContext.getImageData(0, 0, scanCanvas.width, scanCanvas.height).data;
+    let left = frameWidth;
+    let top = frameHeight;
+    let right = 0;
+    let bottom = 0;
+    for (let py = 0; py < scanCanvas.height; py += 1) {
+      const localY = py % frameHeight;
+      for (let px = 0; px < scanCanvas.width; px += 1) {
+        if (pixels[(py * scanCanvas.width + px) * 4 + 3] < 8) continue;
+        const localX = px % frameWidth;
+        left = Math.min(left, localX);
+        top = Math.min(top, localY);
+        right = Math.max(right, localX + 1);
+        bottom = Math.max(bottom, localY + 1);
+      }
+    }
+    scanCanvas.width = 0;
+    scanCanvas.height = 0;
+    const bounds = right > left && bottom > top
+      ? { left, top, width: right - left, height: bottom - top }
+      : { left: 0, top: 0, width: frameWidth, height: frameHeight };
+    cache.set(source, bounds);
+    return bounds;
+  } catch {
+    const fallback = { left: 0, top: 0, width: frameWidth, height: frameHeight };
+    cache.set(source, fallback);
+    return fallback;
+  }
+}
+
+function drawSheetFrame(context, image, frameIndex, x, y, width, height, bounds = null) {
   if (!image?.complete || !image.naturalWidth || !image.naturalHeight) return;
   const columns = 4;
   const rows = 2;
-  const sourceWidth = image.naturalWidth / columns;
-  const sourceHeight = image.naturalHeight / rows;
-  const sourceX = (frameIndex % columns) * sourceWidth;
-  const sourceY = Math.floor(frameIndex / columns) * sourceHeight;
-  const scale = Math.min(width / sourceWidth, height / sourceHeight);
-  const drawWidth = sourceWidth * scale;
-  const drawHeight = sourceHeight * scale;
+  const frameWidth = image.naturalWidth / columns;
+  const frameHeight = image.naturalHeight / rows;
+  const crop = bounds ?? { left: 0, top: 0, width: frameWidth, height: frameHeight };
+  const sourceX = (frameIndex % columns) * frameWidth + crop.left;
+  const sourceY = Math.floor(frameIndex / columns) * frameHeight + crop.top;
+  const scale = Math.min(width / crop.width, height / crop.height);
+  const drawWidth = crop.width * scale;
+  const drawHeight = crop.height * scale;
   context.drawImage(
     image,
     sourceX,
     sourceY,
-    sourceWidth,
-    sourceHeight,
+    crop.width,
+    crop.height,
     x + (width - drawWidth) / 2,
     y + height - drawHeight,
     drawWidth,
@@ -96,6 +140,7 @@ class BattleCanvasRenderer {
     this.bossLayout = bossLayout;
     this.onImpact = onImpact;
     this.imageCache = new Map();
+    this.sheetCropCache = new Map();
     this.sprites = [];
     this.monsterCount = 0;
     this.paused = false;
@@ -273,7 +318,8 @@ class BattleCanvasRenderer {
     context.fill();
     context.filter = sprite.filter;
     if (sheet) {
-      drawSheetFrame(context, sheet, motion.frameIndex, baseX, baseY, boxWidth, boxHeight);
+      const bounds = sheetContentBounds(this.sheetCropCache, sprite.sheetSource, sheet);
+      drawSheetFrame(context, sheet, motion.frameIndex, baseX, baseY, boxWidth, boxHeight, bounds);
     } else {
       // 전용 원화 프레임이 없는 캐릭터는 제자리 정지 이미지를 유지한다. 몸 전체를
       // 위아래로 흔들거나 회전시켜 가짜 모션을 만들지 않는다.
@@ -324,6 +370,7 @@ class BattleCanvasRenderer {
     this.animationFrame = null;
     document.removeEventListener('visibilitychange', this.handleVisibility);
     this.imageCache.clear();
+    this.sheetCropCache.clear();
   }
 }
 
