@@ -6,8 +6,10 @@ export function createGameAudio() {
   let muted = localStorage.getItem(STORAGE_KEY) === 'true';
 
   function ensureContext() {
-    if (context || typeof AudioContext === 'undefined') return context;
-    context = new AudioContext();
+    if (context) return context;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    context = new AudioContextClass();
     masterGain = context.createGain();
     masterGain.gain.value = muted ? 0 : 0.18;
     masterGain.connect(context.destination);
@@ -40,26 +42,41 @@ export function createGameAudio() {
     return setMuted(!muted);
   }
 
-  function impact(intensity = 1) {
-    const audioContext = ensureContext();
-    if (!audioContext || muted || audioContext.state !== 'running') return;
-    const now = audioContext.currentTime;
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-    oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(150 + Math.random() * 35, now);
-    oscillator.frequency.exponentialRampToValueAtTime(72, now + 0.085);
+  function playTone({ type, from, to, duration, volume, startAt = 0 }) {
+    if (!context || !masterGain) return;
+    const now = context.currentTime + startAt;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const filter = context.createBiquadFilter();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(from, now);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, to), now + duration);
     filter.type = 'lowpass';
-    filter.frequency.value = 900;
+    filter.frequency.value = type === 'sine' ? 1800 : 1100;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.17 * Math.min(1, intensity), now + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     oscillator.connect(filter);
     filter.connect(gain);
     gain.connect(masterGain);
     oscillator.start(now);
-    oscillator.stop(now + 0.12);
+    oscillator.stop(now + duration + 0.01);
+  }
+
+  function impact(style = 'melee', intensity = 1) {
+    const audioContext = ensureContext();
+    if (!audioContext || muted || audioContext.state !== 'running') return;
+    const strength = Math.min(1, intensity);
+    if (style === 'ranged') {
+      playTone({ type: 'square', from: 620 + Math.random() * 80, to: 310, duration: 0.075, volume: 0.075 * strength });
+      return;
+    }
+    if (style === 'magic') {
+      playTone({ type: 'sine', from: 430, to: 690, duration: 0.14, volume: 0.07 * strength });
+      playTone({ type: 'sine', from: 650, to: 920, duration: 0.12, volume: 0.045 * strength, startAt: 0.018 });
+      return;
+    }
+    playTone({ type: 'triangle', from: 165 + Math.random() * 30, to: 68, duration: 0.105, volume: 0.15 * strength });
   }
 
   function destroy() {

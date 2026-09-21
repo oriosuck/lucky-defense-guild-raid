@@ -61,7 +61,7 @@ export function GameScreen({ getState, dispatch, onExit }) {
     monsterSrc: UI_IMAGES.monsterIcon,
     bossSrc: BOSS_IMAGE,
     bossLayout: STAGE_LAYOUT.boss,
-    onImpact: () => gameAudio.impact(),
+    onImpact: (attackStyle) => gameAudio.impact(attackStyle),
   });
   root.addEventListener('pointerdown', () => gameAudio.unlock(), { once: true });
   const ui = {
@@ -775,10 +775,15 @@ export function GameScreen({ getState, dispatch, onExit }) {
   // 값이라, 최종 신화 절대 크기가 "예전 신화 크기(0.55×1.25=0.6875)의 120%"가
   // 되도록 역산하면 0.6875×1.2 / 0.44 = 1.875. 이후 사용자 요청으로 그 1.875배에서
   // 다시 10%를 줄였다(1.875 × 0.9 = 1.6875).
-  const HERO_TOKEN_HEIGHT_RATIO = 0.8;
-  const HERO_TOKEN_WIDTH_RATIO = 0.44;
+  // 승인된 전장 비율은 유지하면서 캐릭터만 또렷하게 보이도록 일반~전설을 약 18%
+  // 키운다. 3마리 삼각 대형의 가로 스팬은 1.6 × 0.52 = 칸 폭의 83.2%라서
+  // 커진 뒤에도 한 칸 안에 발판 기준선이 안전하게 들어온다.
+  const HERO_TOKEN_HEIGHT_RATIO = 0.95;
+  const HERO_TOKEN_WIDTH_RATIO = 0.52;
   const IMP_TOKEN_SCALE = 0.5; // 마마 임프는 다른 캐릭터의 절반 크기(사용자 지적 - 너무 컸음)
-  const MYTHIC_TOKEN_SCALE = 1.6875;
+  // 기본 크기가 커진 만큼 배율을 재조정했다. 최종 신화/불멸 크기는 이전보다 약 9%
+  // 커지되 일반 캐릭터와 달리 한 칸을 지나치게 덮지 않는다.
+  const MYTHIC_TOKEN_SCALE = 1.55;
   // "신화들 크기가 다 다르고 불멸 크기가 다 다르다 - 일반~전설은 전기로봇 크기,
   // 신화/불멸은 인디 크기로 맞춰달라"는 사용자 지정에 따라 크기 보정 체계를
   // 처음 도입했었는데(높이를 정확히 맞추는 공식), 실제로 배포해보니 "높이를

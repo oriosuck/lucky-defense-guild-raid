@@ -11,6 +11,14 @@ const MAGIC_HINTS = [
   'watt', 'shaman', 'penguin',
 ];
 
+const MOTION_PROFILE = {
+  melee: { cycleMs: 1320, idleEnd: 0.58, impactFrom: 0.76, impactTo: 0.86 },
+  ranged: { cycleMs: 1480, idleEnd: 0.62, impactFrom: 0.80, impactTo: 0.90 },
+  magic: { cycleMs: 1740, idleEnd: 0.66, impactFrom: 0.82, impactTo: 0.94 },
+};
+const IDLE_FRAME_SEQUENCE = [0, 1, 2, 3, 2, 1];
+const ATTACK_FRAME_SEQUENCE = [4, 4, 5, 6, 7, 7, 6, 5];
+
 function numberFromPercent(value) {
   return Number.parseFloat(value || '0') / 100;
 }
@@ -171,15 +179,19 @@ class BattleCanvasRenderer {
   }
 
   heroMotion(sprite) {
-    const cycleMs = 1650 + sprite.seed * 450;
+    const profile = MOTION_PROFILE[sprite.attackStyle] ?? MOTION_PROFILE.melee;
+    // 개체별 시작 시점만 어긋나게 하고 동작 속도는 역할군별로 고정한다. 예전처럼
+    // 캐릭터마다 속도가 크게 달라져 어떤 개체는 거의 멈춘 것처럼 보이지 않게 한다.
+    const cycleMs = profile.cycleMs * (0.94 + sprite.seed * 0.12);
     const phase = (this.visualTime / cycleMs + sprite.seed) % 1;
-    const attackStart = 0.66;
+    const attackStart = profile.idleEnd;
     const attackPhase = phase >= attackStart ? (phase - attackStart) / (1 - attackStart) : -1;
-    const idleFrame = Math.min(3, Math.floor((phase / attackStart) * 4));
-    const attackFrame = Math.min(7, 4 + Math.floor(Math.max(0, attackPhase) * 4));
+    const idleIndex = Math.min(IDLE_FRAME_SEQUENCE.length - 1, Math.floor((phase / attackStart) * IDLE_FRAME_SEQUENCE.length));
+    const attackIndex = Math.min(ATTACK_FRAME_SEQUENCE.length - 1, Math.floor(Math.max(0, attackPhase) * ATTACK_FRAME_SEQUENCE.length));
     return {
       attackPhase,
-      frameIndex: attackPhase >= 0 ? attackFrame : idleFrame,
+      frameIndex: attackPhase >= 0 ? ATTACK_FRAME_SEQUENCE[attackIndex] : IDLE_FRAME_SEQUENCE[idleIndex],
+      impacting: phase >= profile.impactFrom && phase <= profile.impactTo,
     };
   }
 
@@ -192,13 +204,11 @@ class BattleCanvasRenderer {
     const width = this.width * (layout.width / 100);
     const height = this.height * (layout.height / 100);
     const breathe = 1 + Math.sin(this.visualTime / 650) * 0.012;
-    const hit = this.sprites.some((sprite) => {
-      const phase = this.heroMotion(sprite).attackPhase;
-      return phase > 0.58 && phase < 0.86;
-    });
+    const impactSprite = this.sprites.find((sprite) => this.heroMotion(sprite).impacting);
+    const hit = Boolean(impactSprite);
     if (hit && this.visualTime - this.lastImpactAt > 190) {
       this.lastImpactAt = this.visualTime;
-      this.onImpact?.();
+      this.onImpact?.(impactSprite.attackStyle);
     }
 
     context.save();
@@ -274,7 +284,7 @@ class BattleCanvasRenderer {
 
   drawAttackEffect(context, sprite, motion) {
     const { attackPhase } = motion;
-    if (attackPhase < 0.18 || attackPhase > 0.9 || sprite.sheetSource) return;
+    if (attackPhase < 0.18 || attackPhase > 0.9) return;
     const local = (attackPhase - 0.18) / 0.72;
     const boxWidth = this.width * sprite.width;
     const boxHeight = this.height * sprite.height;
@@ -286,8 +296,8 @@ class BattleCanvasRenderer {
     context.globalAlpha = Math.max(0, alpha) * 0.78;
     context.lineCap = 'round';
 
-    // 보스까지 이어지는 공통 직선 투사체 대신 캐릭터 주변에서 끝나는 짧은 효과만
-    // 사용한다. 전용 시트가 추가되면 이 보조 효과도 해당 프레임 원화로 대체된다.
+    // 보스까지 이어지는 직선 투사체는 사용하지 않는다. 프레임 시트 동작에 맞춰
+    // 캐릭터 주변에서 끝나는 짧은 타격 보조 효과만 겹친다.
     if (sprite.attackStyle === 'melee') {
       context.strokeStyle = '#fff0ae';
       context.lineWidth = Math.max(1.5, boxWidth * 0.05);
