@@ -1,8 +1,21 @@
 const STORAGE_KEY = 'lucky-defense-guild-raid:audio-muted';
+const BGM_STEP_SECONDS = 60 / 96 / 2;
+const BGM_MELODY = [
+  64, null, 67, 71, 67, null, 66, 62,
+  64, null, 67, 72, 71, 67, 66, null,
+  64, 67, 71, 74, 71, 67, 66, 62,
+  64, null, 62, 66, 64, null, 59, null,
+];
+const BGM_BASS = [40, 36, 43, 38];
 
 export function createGameAudio() {
   let context = null;
   let masterGain = null;
+  let bgmGain = null;
+  let bgmFilter = null;
+  let bgmTimer = null;
+  let bgmStep = 0;
+  let nextBgmNoteAt = 0;
   let muted = localStorage.getItem(STORAGE_KEY) === 'true';
 
   function ensureContext() {
@@ -13,6 +26,13 @@ export function createGameAudio() {
     masterGain = context.createGain();
     masterGain.gain.value = muted ? 0 : 0.18;
     masterGain.connect(context.destination);
+    bgmGain = context.createGain();
+    bgmGain.gain.value = 0.32;
+    bgmFilter = context.createBiquadFilter();
+    bgmFilter.type = 'lowpass';
+    bgmFilter.frequency.value = 1250;
+    bgmFilter.connect(bgmGain);
+    bgmGain.connect(masterGain);
     return context;
   }
 
@@ -25,6 +45,50 @@ export function createGameAudio() {
         // 브라우저가 사용자 제스처로 인정하지 않은 경우 다음 조작 때 다시 시도한다.
       }
     }
+    if (audioContext?.state === 'running') startBgm();
+  }
+
+  function midiFrequency(note) {
+    return 440 * (2 ** ((note - 69) / 12));
+  }
+
+  function playBgmNote(note, startAt, duration, type, volume) {
+    if (!context || !bgmFilter) return;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = midiFrequency(note);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    oscillator.connect(gain);
+    gain.connect(bgmFilter);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + duration + 0.02);
+  }
+
+  function scheduleBgm() {
+    if (!context || context.state !== 'running') return;
+    const scheduleUntil = context.currentTime + 0.6;
+    while (nextBgmNoteAt < scheduleUntil) {
+      const melodyNote = BGM_MELODY[bgmStep % BGM_MELODY.length];
+      if (melodyNote != null) {
+        playBgmNote(melodyNote, nextBgmNoteAt, BGM_STEP_SECONDS * 0.82, 'triangle', 0.035);
+      }
+      if (bgmStep % 8 === 0) {
+        const measure = Math.floor(bgmStep / 8) % BGM_BASS.length;
+        playBgmNote(BGM_BASS[measure], nextBgmNoteAt, BGM_STEP_SECONDS * 7.4, 'sine', 0.055);
+      }
+      bgmStep += 1;
+      nextBgmNoteAt += BGM_STEP_SECONDS;
+    }
+  }
+
+  function startBgm() {
+    if (!context || context.state !== 'running' || bgmTimer) return;
+    nextBgmNoteAt = context.currentTime + 0.08;
+    scheduleBgm();
+    bgmTimer = window.setInterval(scheduleBgm, 200);
   }
 
   function setMuted(nextMuted) {
@@ -95,9 +159,13 @@ export function createGameAudio() {
   }
 
   function destroy() {
+    if (bgmTimer) window.clearInterval(bgmTimer);
+    bgmTimer = null;
     if (context && context.state !== 'closed') context.close();
     context = null;
     masterGain = null;
+    bgmGain = null;
+    bgmFilter = null;
   }
 
   return {
