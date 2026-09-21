@@ -1694,6 +1694,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
     });
     return el('div', { class: 'game-popup' }, [
       el('div', { class: 'popup-topbar' }, [
+        el('span', { class: 'popup-title', text: '룰렛 소환' }),
+        el('span', { class: 'popup-topbar-spacer' }),
         el('span', { class: 'popup-stat' }, [el('img', { src: UI_IMAGES.luckstoneIcon, alt: '' }), el('span', { text: String(state.luckstone) })]),
         el('span', { class: 'popup-stat', text: `👥 ${fieldOccupantCount(state)}/${state.fieldMaxCapacity}` }),
         el('button', { class: 'popup-close', text: '✕', onclick: () => closePopup(state) }),
@@ -1737,6 +1739,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
     });
     return el('div', { class: 'game-popup' }, [
       el('div', { class: 'popup-topbar' }, [
+        el('span', { class: 'popup-title', text: '영웅 강화' }),
+        el('span', { class: 'popup-topbar-spacer' }),
         el('span', { class: 'popup-stat' }, [el('img', { src: UI_IMAGES.goldIcon, alt: '' }), el('span', { text: String(Math.floor(state.gold)) })]),
         el('span', { class: 'popup-stat' }, [el('img', { src: UI_IMAGES.luckstoneIcon, alt: '' }), el('span', { text: String(state.luckstone) })]),
         el('button', { class: 'popup-close', text: '✕', onclick: () => closePopup(state) }),
@@ -1789,7 +1793,11 @@ export function GameScreen({ getState, dispatch, onExit }) {
     const ready = craftMaterialsReady(state, heroDef);
     return el('div', { class: 'mythic-detail-card' }, [
       el('button', { class: 'popup-close', text: '✕', onclick: () => closePopup(state) }),
-      el('div', { class: 'mythic-detail-name', text: heroDef.name }, [el('span', { class: 'tier-label', text: TIER_LABEL[heroDef.tier] })]),
+      el('div', { class: 'mythic-panel-kicker', text: '영웅 조합소' }),
+      el('div', { class: 'mythic-detail-name' }, [
+        el('span', { text: heroDef.name }),
+        el('span', { class: 'tier-label', text: TIER_LABEL[heroDef.tier] }),
+      ]),
       el('div', { class: 'mythic-materials' }, [
         ...materials,
         el('span', { class: 'mat-arrow', text: '→' }),

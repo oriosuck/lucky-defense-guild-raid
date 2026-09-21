@@ -785,7 +785,7 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
   pointer-events: none;
 }
 .command-resource-values {
-  position: absolute; left: 19%; top: 8%; width: 62%; aspect-ratio: 1310 / 175;
+  position: absolute; left: 17%; top: 5%; width: 66%; aspect-ratio: 1310 / 175;
   background: url('/ui/reference_resource_bar.webp') center / contain no-repeat;
   filter: drop-shadow(0 3px 3px rgba(0,0,0,.34));
   pointer-events: none;
@@ -810,32 +810,32 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 .command-hit:active { transform: translateY(2px) scale(.985); }
 .command-hit:focus-visible { outline: 3px solid #ffe06a; outline-offset: -3px; }
 .command-mythic {
-  left: 10%; top: 29%; width: 21%; aspect-ratio: 480 / 380;
+  left: 7.5%; top: 27%; width: 23%; aspect-ratio: 480 / 380;
   background-image: url('/ui/reference_mythic_button_v3.webp');
 }
 .command-summon {
-  left: 32%; top: 29%; width: 36%; aspect-ratio: 770 / 380;
+  left: 29.5%; top: 25.5%; width: 41%; aspect-ratio: 770 / 380;
   background-image: url('/ui/reference_summon_button_v3.webp');
 }
 .command-roulette {
-  left: 69%; top: 29%; width: 21%; aspect-ratio: 470 / 365;
+  left: 69.5%; top: 27%; width: 23%; aspect-ratio: 470 / 365;
   background-image: url('/ui/reference_roulette_button_v3.webp');
 }
 .command-enhance {
-  left: 30%; top: 69%; width: 40%; aspect-ratio: 880 / 250;
+  left: 27%; top: 70%; width: 46%; aspect-ratio: 880 / 250;
   background-image: url('/ui/reference_enhance_button_v3.webp');
 }
 .command-label {
   position: absolute; left: 50%; transform: translate(-50%,-50%);
-  color: #fff; font-size: clamp(12px, 3.6vw, 17px); font-weight: 900;
+  color: #fff; font-size: clamp(12px, 3.45vw, 17px); font-weight: 900;
   line-height: 1; white-space: nowrap;
   text-shadow: 0 2px 0 #05070a, 2px 0 #05070a, -2px 0 #05070a, 0 -2px #05070a;
   pointer-events: none;
 }
 .command-mythic .command-label,
 .command-roulette .command-label { top: 76%; }
-.command-summon .command-label { top: 35%; }
-.command-enhance .command-label { left: 61%; top: 51%; }
+.command-summon .command-label { top: 34%; font-size: clamp(15px, 4.7vw, 23px); }
+.command-enhance .command-label { left: 58%; top: 50%; font-size: clamp(14px, 4vw, 20px); }
 .command-hit.is-disabled { cursor: not-allowed; filter: grayscale(.35); opacity: .55; }
 .command-badge {
   position: absolute; right: 8%; top: 1%; min-width: 17px; padding: 1px 4px;
@@ -844,9 +844,11 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
   box-shadow: 0 2px 3px rgba(0,0,0,.42);
 }
 .command-summon-cost {
-  position: absolute; left: 51%; top: 77%; transform: translate(-50%,-50%);
-  min-width: 28%; text-align: center;
-  color: #fff2bf; font-weight: 900; font-size: clamp(10px, 3vw, 14px);
+  position: absolute; left: 50%; top: 74%; transform: translate(-50%,-50%);
+  width: 44%; height: 23%;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; white-space: nowrap;
+  color: #fff2bf; font-weight: 900; font-size: clamp(10px, 3.1vw, 15px);
   line-height: 1; text-shadow: 0 2px 2px #281000;
 }
 
@@ -856,58 +858,85 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 
 /* ==== 팝업 공통 ==== */
 .game-popup {
-  position: absolute; left: 2.7%; right: 2.7%; bottom: 11%; z-index: 10;
-  background: linear-gradient(180deg, #6b4a36, #4a3324);
-  border: 3px solid #2c1d13;
-  border-radius: 18px 18px 0 0;
-  padding: 3%;
-  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.4);
+  position: absolute; left: 3.5%; right: 3.5%; bottom: 12.5%; z-index: 10;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.05), transparent 18%, transparent 82%, rgba(255,255,255,.04)),
+    linear-gradient(180deg, #344665 0%, #1d2d49 12%, #111b2f 100%);
+  border: 3px solid #131929;
+  border-radius: 18px 18px 10px 10px;
+  padding: 3.2%;
+  box-shadow: inset 0 0 0 2px #597398, inset 0 -9px 0 rgba(6,10,20,.38), 0 -7px 20px rgba(0,0,0,.48);
   color: #fff;
 }
-.popup-topbar {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 20px;
-  padding: 4% 5%;
-  margin-bottom: 4%;
-  font-weight: 700; font-size: clamp(10px, 3vw, 13px);
+.game-popup::before {
+  content: ''; position: absolute; left: 8%; right: 8%; top: -5px; height: 7px;
+  border-radius: 999px; background: linear-gradient(90deg, #795126, #ffd669 50%, #795126);
+  box-shadow: 0 2px 0 #2b1a0c;
 }
-.popup-stat { display: flex; align-items: center; gap: 4px; }
-.popup-stat img { width: 14px; height: 14px; object-fit: contain; }
+.popup-topbar {
+  display: flex; align-items: center; gap: clamp(4px, 1.5vw, 8px);
+  min-height: 36px;
+  background: linear-gradient(180deg, #5d3b27, #342117);
+  border: 2px solid #17100d; border-radius: 9px;
+  padding: 2.2% 2.5%; margin-bottom: 3.5%;
+  box-shadow: inset 0 0 0 1px #9b7044, 0 3px 0 rgba(0,0,0,.3);
+  font-weight: 800; font-size: clamp(9px, 2.7vw, 13px);
+}
+.popup-title {
+  color: #fff7d7; font-size: clamp(13px, 3.8vw, 18px); font-weight: 900; white-space: nowrap;
+  text-shadow: 0 2px 0 #160c08;
+}
+.popup-topbar-spacer { flex: 1; }
+.popup-stat {
+  min-height: 23px; padding: 2px 7px; display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: #201713; border: 1px solid #8d6742; border-radius: 999px; white-space: nowrap;
+}
+.popup-stat img { width: 15px; height: 15px; object-fit: contain; }
 .popup-close {
-  margin-left: auto;
-  width: 22px; height: 22px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none; border-radius: 6px;
+  flex: 0 0 auto; width: 28px; height: 28px;
+  background: linear-gradient(180deg, #637895, #293851);
+  border: 2px solid #121927; border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; cursor: pointer;
+  box-shadow: inset 0 0 0 1px #8ea0b7, 0 2px 0 rgba(0,0,0,.3);
+  color: #fff; font-weight: 900; cursor: pointer;
 }
 
 /* ---- 룰렛 팝업 ----
    룰렛 휠은 이미지 대신 목업(게임화면_목업.html)의 .roulette-wheel처럼 CSS로 직접 그린
    원(배경색+테두리색)에 등급 라벨 텍스트를 넣는다 - 이미지 비율이 등급마다 달라 실제
    크기가 들쭉날쭉해 보이던 문제라 아예 이미지를 걷어냈다. */
-.roulette-row { display: flex; justify-content: space-between; gap: 8px; }
-.roulette-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.roulette-pct { color: #fff; font-size: clamp(10px, 3vw, 13px); font-weight: 800; }
+.roulette-row { display: flex; justify-content: space-between; gap: 2.2%; }
+.roulette-item {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 3% 2% 2.6%; border: 2px solid #455a7c; border-radius: 12px;
+  background: linear-gradient(180deg, rgba(79,103,145,.68), rgba(16,25,43,.88));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 3px 5px rgba(0,0,0,.28);
+}
+.roulette-pct {
+  min-width: 55%; padding: 2px 8px; border-radius: 999px; background: #1a1220; border: 1px solid #d9a93d;
+  color: #ffe67d; font-size: clamp(10px, 3vw, 14px); font-weight: 900; text-align: center;
+}
 .roulette-wheel-btn {
-  width: 100%; aspect-ratio: 1; border: none; background: transparent; padding: 0; cursor: pointer;
+  width: 92%; aspect-ratio: 1; border: none; background: transparent; padding: 0; cursor: pointer;
   position: relative;
 }
-.roulette-wheel-btn.is-disabled { opacity: 0.4; cursor: not-allowed; }
+.roulette-wheel-btn:disabled { opacity: 0.42; cursor: not-allowed; filter: grayscale(.3); }
 .roulette-wheel-circle {
-  width: 100%; height: 100%; border-radius: 50%;
-  border: 5px solid;
+  position: relative; width: 100%; height: 100%; border-radius: 50%; border: 6px solid;
   display: flex; align-items: center; justify-content: center;
   text-align: center; padding: 8%;
-  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 4px rgba(8,11,20,.48), inset 0 -7px 9px rgba(0,0,0,.35), 0 4px 0 #080c16, 0 5px 9px rgba(0,0,0,.4);
 }
-.roulette-wheel-circle.blue { background: #2f6fb0; border-color: #58a6e0; }
-.roulette-wheel-circle.purple { background: #5b3f8f; border-color: #8e6fd6; }
-.roulette-wheel-circle.gold { background: #c98a1f; border-color: #f5c542; }
+.roulette-wheel-circle::after {
+  content: ''; position: absolute; inset: 13%; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.35); box-shadow: inset 0 2px 6px rgba(255,255,255,.16);
+}
+.roulette-wheel-circle.blue { background: conic-gradient(#65c4ff, #2858a4, #78d5ff, #244486, #65c4ff); border-color: #9ae1ff; }
+.roulette-wheel-circle.purple { background: conic-gradient(#bd76ff, #5d2c91, #e090ff, #4a237a, #bd76ff); border-color: #dca2ff; }
+.roulette-wheel-circle.gold { background: conic-gradient(#ffe772, #c78013, #fff09b, #ad650d, #ffe772); border-color: #fff1a0; }
 .roulette-wheel-label {
-  color: #fff; font-weight: 800; font-size: clamp(11px, 3.2vw, 15px);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  z-index: 1; color: #fff; font-weight: 900; font-size: clamp(11px, 3.3vw, 16px);
+  text-shadow: 0 2px 0 #10101a, 2px 0 #10101a, -2px 0 #10101a;
 }
 /* 룰렛이 도는 시간은 정확히 0.28초 */
 .roulette-wheel-btn.spinning .roulette-wheel-circle { animation: roulette-spin 0.28s cubic-bezier(0.2, 0.8, 0.3, 1); }
@@ -936,105 +965,108 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 }
 .roulette-item-cost {
   display: flex; align-items: center; gap: 3px;
-  background: var(--gold); color: #3a2205; font-weight: 800; font-size: clamp(10px, 2.8vw, 13px);
-  padding: 2% 8%; border-radius: 8px;
+  min-width: 62%; justify-content: center; background: linear-gradient(180deg, #ffe45d, #d78b0b);
+  border: 2px solid #6f4009; color: #362006; font-weight: 900; font-size: clamp(10px, 2.8vw, 13px);
+  padding: 2% 8%; border-radius: 7px; box-shadow: inset 0 1px 0 #fff5a7;
 }
 .roulette-item-cost img { width: 12px; height: 12px; }
 
 /* ---- 강화 팝업(전역 4트랙: 일반~희귀/영웅/전설~불멸/소환 확률) ---- */
-.enhance-cols { display: flex; justify-content: space-between; gap: 6px; }
+.enhance-cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .enhance-col {
-  flex: 1;
-  background: rgba(0, 0, 0, 0.18);
-  border-radius: 12px;
-  padding: 6% 2%;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  border: none; color: #fff; cursor: pointer;
+  min-height: 76px; position: relative;
+  background: linear-gradient(145deg, #40577c, #1a2943 62%, #111a2c);
+  border-radius: 11px; padding: 5% 5% 5% 36%;
+  display: grid; grid-template-columns: 1fr auto; align-content: center; align-items: center; gap: 3px 5px;
+  border: 2px solid #6781a6; color: #fff; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 3px 0 #0b1220;
 }
 .enhance-col.is-disabled { opacity: 0.55; cursor: not-allowed; }
-.enhance-col-icon { width: 40px; height: 40px; object-fit: contain; }
-.enhance-col-name { font-size: clamp(9px, 2.4vw, 11px); font-weight: 700; color: var(--muted); text-align: center; }
-.enhance-col-lv { font-size: clamp(10px, 2.8vw, 13px); font-weight: 700; }
+.enhance-col:disabled { opacity: .5; cursor: not-allowed; filter: grayscale(.25); }
+.enhance-col-icon { position: absolute; left: 5%; top: 50%; transform: translateY(-50%); width: 30%; height: 70%; object-fit: contain; }
+.enhance-col-name { grid-column: 1 / -1; font-size: clamp(10px, 2.7vw, 13px); font-weight: 900; color: #fff5d1; text-align: left; }
+.enhance-col-lv { font-size: clamp(10px, 2.8vw, 14px); font-weight: 900; color: #9ed9ff; }
 .enhance-col-cost {
   display: flex; align-items: center; gap: 3px;
-  background: var(--gold); color: #3a2205; font-weight: 800; font-size: clamp(9px, 2.4vw, 12px);
-  padding: 2% 8%; border-radius: 8px;
+  background: linear-gradient(180deg, #ffe45d, #d78b0b); border: 1px solid #6f4009;
+  color: #3a2205; font-weight: 900; font-size: clamp(9px, 2.4vw, 12px);
+  padding: 3px 7px; border-radius: 999px;
 }
 .enhance-col-cost img { width: 11px; height: 11px; }
 
 /* ---- 신화 팝업 (78% 높이, 신화/불멸 탭 전환) ---- */
 .mythic-popup {
-  position: absolute; left: 2.7%; right: 2.7%; bottom: 0; z-index: 10;
-  max-height: 78%;
+  position: absolute; left: 3.5%; right: 3.5%; bottom: 0; z-index: 10;
+  max-height: 82%; background: #111b2f;
   display: flex; flex-direction: column;
-  border-radius: 18px 18px 0 0;
+  border: 3px solid #151a27; border-bottom: 0; border-radius: 18px 18px 0 0;
   overflow: hidden;
-  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 2px #5b7396, 0 -7px 22px rgba(0,0,0,.58);
 }
 .mythic-detail-card {
   position: relative;
-  background: #ece0c8;
-  padding: 4% 4% 3%;
-  border-bottom: 3px solid #2c1d13;
+  background: linear-gradient(145deg, #3b506f 0%, #1b2a44 55%, #131e32 100%);
+  padding: 3.5% 4% 3%; border-bottom: 3px solid #080e19;
   flex-shrink: 0;
 }
-.mythic-detail-card .popup-close { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.12); color: #3a2205; }
-.mythic-detail-name { font-weight: 900; font-size: clamp(14px, 4vw, 18px); color: #3a2205; margin-bottom: 3%; }
-.mythic-detail-name .tier-label { color: #8a7050; font-size: 12px; font-weight: 700; margin-left: 6px; }
+.mythic-detail-card::before { content:''; position:absolute; left:10%; right:10%; top:0; height:4px; background:linear-gradient(90deg,#815923,#ffe37c,#815923); }
+.mythic-detail-card .popup-close { position: absolute; top: 9px; right: 9px; }
+.mythic-panel-kicker { color:#f5c852; font-size:clamp(9px,2.4vw,11px); font-weight:900; letter-spacing:.08em; }
+.mythic-detail-name { display:flex; align-items:center; gap:7px; font-weight:900; font-size:clamp(16px,4.4vw,21px); color:#fff; margin:1% 34px 3% 0; text-shadow:0 2px 0 #080c14; }
+.mythic-detail-name .tier-label { color:#ffd866; background:#291b14; border:1px solid #b98b36; border-radius:999px; padding:2px 7px; font-size:10px; font-weight:900; }
 .mythic-materials { display: flex; align-items: center; gap: 6px; margin-bottom: 3%; flex-wrap: wrap; }
 .mat {
   position: relative;
-  width: 40px; height: 40px;
-  background: #d9c6f0; border: 2px solid #a97fe0; border-radius: 8px;
+  width: 44px; height: 44px;
+  background: radial-gradient(circle at 50% 30%, #65518a, #241d3c); border: 2px solid #a984e3; border-radius: 9px;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 2px 3px rgba(0,0,0,.35);
 }
 .mat img { width: 100%; height: 100%; object-fit: contain; }
-.mat.ready { border-color: #3fae5c; }
+.mat.ready { border-color: #67e58d; box-shadow: 0 0 8px rgba(75,235,126,.52); }
 .mat-count {
   position: absolute; right: 1px; bottom: 1px;
   background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 9px; font-weight: 700;
   padding: 0 3px; border-radius: 3px;
 }
-.mat-arrow { font-size: 18px; color: #8a7050; }
-.mat-result { width: 40px; height: 40px; background: #ffe27a; border-radius: 8px; overflow: hidden; }
+.mat-arrow { font-size: 21px; color: #ffd35f; font-weight:900; }
+.mat-result { width: 48px; height: 48px; background:radial-gradient(circle,#fff6a8,#c78c16); border:2px solid #ffe57c; border-radius:10px; overflow:hidden; box-shadow:0 0 9px rgba(255,204,61,.48); }
 .mat-result img { width: 100%; height: 100%; object-fit: contain; }
 .mythic-summon-btn {
   width: 100%;
-  background: linear-gradient(180deg, #4fe0c5, #1f9e85);
-  border: 2px solid #12634f; border-radius: 10px;
-  color: #0a3a30; font-weight: 900; font-size: 14px;
-  padding: 3% 0;
+  background:linear-gradient(180deg,#ffe85c,#e59b0b 58%,#b96c05);
+  border:2px solid #5b3407; border-radius:9px;
+  color:#382005; font-weight:900; font-size:clamp(14px,3.8vw,18px); padding:3% 0;
+  box-shadow:inset 0 2px 0 #fff6ad,0 3px 0 #402305;
 }
 .mythic-summon-btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
-.mythic-empty-note { color: #8a7050; font-size: 12px; }
+.mythic-summon-btn:disabled { opacity:.45; filter:grayscale(.35); }
+.mythic-empty-note { color: #d5dded; font-size: 12px; }
 
 .mythic-grid {
   flex: 1; overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-  padding: 3%;
-  background: #3a2a1e;
+  grid-template-columns: repeat(4, 1fr); gap: 7px; padding: 3%;
+  background:linear-gradient(180deg,#0e1729,#18243a);
 }
 .mythic-cell {
-  background: #5a4231; border-radius: 8px;
+  background:linear-gradient(145deg,#425777,#202f49 64%,#172239); border-radius:9px;
   display: flex; flex-direction: column; align-items: center;
-  padding: 6% 2%; gap: 2px;
-  border: 2px solid transparent;
-  cursor: pointer;
+  padding:6% 3% 5%; gap:3px; border:2px solid #5e7393; cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 2px 0 #080e18;
 }
-.mythic-cell.ready { border-color: #e0483f; }
-.mythic-cell.selected { border-color: var(--gem); }
+.mythic-cell.ready { border-color:#ffd75c; box-shadow:0 0 9px rgba(255,205,65,.42),inset 0 0 0 1px #9c6d17; }
+.mythic-cell.selected { border-color:#58dfff; box-shadow:0 0 10px rgba(63,212,255,.48),inset 0 0 0 1px #236c91; }
 .mythic-cell-image { width: 100%; aspect-ratio: 1; object-fit: contain; }
 .mythic-cell.locked .mythic-cell-image { filter: grayscale(1) brightness(0.5); }
-.mythic-progress { color: #f0e6d2; font-size: 9px; font-weight: 700; text-align: center; }
-.mythic-tabs { display: flex; flex-shrink: 0; }
+.mythic-progress { width:100%; min-height:16px; display:flex; align-items:center; justify-content:center; color:#fff8df; background:#111a2b; border-radius:999px; font-size:9px; font-weight:900; text-align:center; }
+.mythic-tabs { display:flex; flex-shrink:0; gap:4px; padding:7px 8px 9px; background:#0b1322; }
 .mythic-tab {
   flex: 1; text-align: center; padding: 3% 0;
-  background: #ece0c8; color: #8a7050; font-weight: 800; font-size: 13px;
-  border: none; cursor: pointer;
+  background:linear-gradient(180deg,#526985,#293a55); color:#c4cede; font-weight:900; font-size:13px;
+  border:2px solid #151c29; border-radius:8px; cursor:pointer; box-shadow:inset 0 0 0 1px #7185a1;
 }
-.mythic-tab.active { background: #3a2a1e; color: #fff; }
+.mythic-tab.active { background:linear-gradient(180deg,#e0443c,#8c171c); color:#fff7d2; border-color:#4e1011; box-shadow:inset 0 0 0 1px #ff8173,0 0 8px rgba(238,55,48,.35); }
 
 .popup-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
