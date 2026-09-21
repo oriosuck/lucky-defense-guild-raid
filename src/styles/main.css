@@ -979,17 +979,19 @@ button.is-disabled.side-btn, button.is-disabled.summon-btn-wrap { opacity: 0.45;
 .enhance-col-name { font-size: clamp(9px, 2.4vw, 11px); font-weight: 900; color: #fff5d1; text-align: center; }
 .enhance-col-lv { font-size: clamp(10px, 2.8vw, 13px); font-weight: 900; color: #9ed9ff; }
 .enhance-col-cost {
-  display: flex; align-items: center; gap: 3px;
+  width: 88%; min-height: 30px;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
   background: linear-gradient(180deg, #ffe45d, #d78b0b); border: 1px solid #6f4009;
-  color: #3a2205; font-weight: 900; font-size: clamp(9px, 2.4vw, 12px);
-  padding: 3px 7px; border-radius: 999px;
+  color: #3a2205; font-weight: 900; font-size: clamp(11px, 3vw, 14px);
+  padding: 5px 3px; border-radius: 8px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 2px 0 #754407;
 }
-.enhance-col-cost img { width: 11px; height: 11px; }
+.enhance-col-cost img { width: 14px; height: 14px; }
 
-/* ---- 신화 팝업 (78% 높이, 신화/불멸 탭 전환) ---- */
+/* ---- 신화 팝업 (기존 78% 높이의 2/3인 52%, 신화/불멸 탭 전환) ---- */
 .mythic-popup {
   position: absolute; left: 2.7%; right: 2.7%; bottom: 0; z-index: 10;
-  max-height: 78%; background: #111b2f;
+  max-height: 52%; background: #111b2f;
   display: flex; flex-direction: column;
   border: 3px solid #151a27; border-bottom: 0; border-radius: 18px 18px 0 0;
   overflow: hidden;
