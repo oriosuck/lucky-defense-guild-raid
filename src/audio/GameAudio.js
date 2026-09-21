@@ -79,6 +79,21 @@ export function createGameAudio() {
     playTone({ type: 'triangle', from: 165 + Math.random() * 30, to: 68, duration: 0.105, volume: 0.15 * strength });
   }
 
+  function uiClick(kind = 'default') {
+    const audioContext = ensureContext();
+    if (!audioContext || muted || audioContext.state !== 'running') return;
+    if (kind === 'close') {
+      playTone({ type: 'triangle', from: 260, to: 170, duration: 0.055, volume: 0.045 });
+      return;
+    }
+    if (kind === 'primary') {
+      playTone({ type: 'sine', from: 420, to: 610, duration: 0.07, volume: 0.055 });
+      playTone({ type: 'triangle', from: 620, to: 760, duration: 0.065, volume: 0.035, startAt: 0.025 });
+      return;
+    }
+    playTone({ type: 'triangle', from: 340, to: 270, duration: 0.045, volume: 0.04 });
+  }
+
   function destroy() {
     if (context && context.state !== 'closed') context.close();
     context = null;
@@ -89,6 +104,7 @@ export function createGameAudio() {
     unlock,
     toggle,
     impact,
+    uiClick,
     destroy,
     get muted() {
       return muted;

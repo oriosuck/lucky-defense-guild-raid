@@ -64,6 +64,19 @@ export function GameScreen({ getState, dispatch, onExit }) {
     onImpact: (attackStyle) => gameAudio.impact(attackStyle),
   });
   root.addEventListener('pointerdown', () => gameAudio.unlock(), { once: true });
+  // Web Audio는 첫 사용자 입력 이후에만 재생할 수 있다. 버튼 클릭은 캡처 단계에서
+  // 한 번만 받아 모든 팝업/하단 명령 버튼에 일관된 조작음을 제공한다.
+  root.addEventListener('click', (event) => {
+    const button = event.target.closest('button');
+    if (!button || button.disabled) return;
+    const label = `${button.textContent ?? ''} ${button.title ?? ''}`;
+    const kind = /닫기|나가기|×|✕|🚪/.test(label)
+      ? 'close'
+      : /소환|조합|강화|룰렛|승급|확인/.test(label)
+        ? 'primary'
+        : 'default';
+    gameAudio.uiClick(kind);
+  });
   const ui = {
     selectedSlot: null, // {row,col} | null - 선택 기준은 개체가 아니라 칸 자체
     popup: null, // null | 'mythic' | 'roulette' | 'enhance' | 'mission'
