@@ -509,10 +509,8 @@ body {
 }
 
 /* 캐릭터 머리 바로 위에 숫자 하나만 항상 띄우는 배지(선택 여부와 무관) - 로카는
-   장전된 탄약 수, 배트맨은 지금 강화 레벨, 밤바는 불멸 진행도를 이 자리에
-   보여준다(사용자 지정 - "몇강인지는 배트 머리 위에 로카처럼 적어줘", "밤바
-   강화 수치도 로카처럼 머리에 적어줘"). 다른 신화들은 PR #27에서 진행도 표시를
-   전부 없앴지만 이 셋만 예외 - stage-hero-layer 안에서 캐릭터 토큰과 같은
+   장전된 탄약 수, 배트맨은 지금 강화 레벨을 이 자리에 보여준다. 밤바 진행도는
+   캐릭터 선택 시 상단 패널로 이동했다. stage-hero-layer 안에서 캐릭터 토큰과 같은
    left/top(%) 좌표계를 쓰고 위로만 살짝 띄운다. 처음엔 9px로 너무 작아서 사용자가
    "글자도 좀 굵게 가시적으로 보이게"라고 정정 - 판매 버튼(.cell-quick-sell) 급으로
    눈에 띄게 폰트/패딩/테두리를 키웠다. */
@@ -524,6 +522,35 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   pointer-events: none;
 }
+
+/* 밤바/채드 진행도는 캐릭터 머리 위 숫자가 아니라, 해당 캐릭터를 선택했을 때만
+   보스 체력바 아래의 고정 위치에 표시한다. 전장과 하단 UI 배치는 움직이지 않는다. */
+.hero-progress-banner {
+  position: absolute; left: 20%; top: 14.1%; width: 60%; z-index: 8;
+  padding: 1.25% 2%; border: 2px solid #121927; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(57,77,108,.97), rgba(20,31,51,.97));
+  box-shadow: inset 0 0 0 1px #7188a8, 0 4px 8px rgba(0,0,0,.42);
+  color: #fff; pointer-events: none;
+}
+.hero-progress-heading {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 4px; font-size: clamp(9px, 2.5vw, 12px); font-weight: 900;
+  text-shadow: 0 2px 1px #080c14;
+}
+.hero-progress-title { color: #fff4cf; white-space: nowrap; }
+.hero-progress-value { color: #8fddff; white-space: nowrap; }
+.hero-progress-track {
+  width: 100%; height: 8px; overflow: hidden; border: 2px solid #090e18; border-radius: 999px;
+  background: #111827; box-shadow: inset 0 1px 2px rgba(0,0,0,.65);
+}
+.hero-progress-fill {
+  height: 100%; border-radius: inherit;
+  background: linear-gradient(90deg, #39a6e8, #78e6ff);
+  box-shadow: 0 0 6px rgba(92,221,255,.7);
+}
+.hero-progress-banner.ready { border-color: #76500d; box-shadow: inset 0 0 0 1px #ffe482, 0 0 12px rgba(255,205,62,.45); }
+.hero-progress-banner.ready .hero-progress-value { color: #ffe36a; }
+.hero-progress-banner.ready .hero-progress-fill { background: linear-gradient(90deg, #e78c0c, #ffe45f); box-shadow: 0 0 8px rgba(255,211,55,.75); }
 
 /* 13/20라운드 삭제 공격 - 대상 행/열 전체를 감싸는 네모 테두리 + 왼쪽(행)/위쪽(열)
    에서부터 차오르는 붉은 게이지(사용자 요청 시각 효과). 다 차면(9초) 그 라인의

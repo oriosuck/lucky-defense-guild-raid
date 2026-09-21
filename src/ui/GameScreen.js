@@ -460,6 +460,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
     stage.appendChild(renderStageControls(state));
     stage.appendChild(renderSideControls(state));
     stage.appendChild(renderCommandDeck(state));
+    const selectedProgressBanner = renderSelectedProgressBanner(state);
+    if (selectedProgressBanner) stage.appendChild(selectedProgressBanner);
     const raySwordBanner = renderRaySwordBanner(state);
     if (raySwordBanner) stage.appendChild(raySwordBanner);
     const missionToast = renderMissionToast(state);
@@ -1082,15 +1084,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
             text: `${occ.enhanceLevel ?? 0}`,
           }));
         }
-        // 원시 밤바도 같은 자리에 지금 쌓인 스택 수(불멸 조건 진행도, 목표 30)를
-        // 숫자만 보여준다(사용자 요청 - "밤바 강화 수치도 로카처럼 머리에 적어줘").
-        if (occ.heroId === 'm_bamba') {
-          layer.appendChild(el('div', {
-            class: 'hero-head-badge',
-            style: `left:${centerX}%; top:${top + tokenHeight * HEAD_BADGE_TOP_RATIO}%; z-index:${30 + slot.row};`,
-            text: `${occ.progress ?? 0}`,
-          }));
-        }
         // 탑 베인 궁극기 쿨타임 게이지는 캐릭터 바로 밑에 항상 표시(선택 여부와
         // 무관 - 인디 발굴 게이지와 같은 패턴). 칸(rect)이 아니라 토큰 자신의
         // 발끝(top+tokenHeight) 기준으로 그려야 신화 크기 배율과 무관하게 항상
@@ -1599,15 +1592,6 @@ export function GameScreen({ getState, dispatch, onExit }) {
     if (instance.heroId === 'm_indy') {
       return `보유 보물: ${instance.indyTreasureTier ? TIER_LABEL[instance.indyTreasureTier] : '없음'}`;
     }
-    // 채드는 판매(먹이기)할 때마다 확률적으로 능력치가 오르는 방식이라 몇 번
-    // 먹였는지가 아니라 "지금 몇 % 찼는지"가 진행 상황이다(사용자 요청 -
-    // "채드 눌렀을 때 몇 % 찼는지 보여줘"). target(10)이 곧 100%에 해당하는
-    // 수치라 progress를 그대로 %로 보여주면 된다.
-    if (instance.heroId === 'm_chad') {
-      const target = heroDef.immortalCondition?.target ?? 10;
-      const pct = Math.min(target, instance.progress ?? 0);
-      return `기가채드 진행도: ${pct}%`;
-    }
     return null;
   }
 
@@ -1895,6 +1879,44 @@ export function GameScreen({ getState, dispatch, onExit }) {
   // 배너로 보여주되, 그 레이를 선택했을 때만 노출한다(사용자 지정 - "화면 상단에
   // 고정하는데 레이를 눌렀을 때만 보이게 해줘"). 그림은 필요 없고 등급별 색상
   // (RAY_SWORD_TIER_COLOR - 일반 흰색/희귀 파랑/영웅 보라/전설 노랑)으로만 구분한다.
+  function renderSelectedProgressBanner(state) {
+    const found = selectedInstance(state);
+    if (!found) return null;
+    const { instance } = found;
+    let title;
+    let current;
+    let target;
+    let valueText;
+    let ready = false;
+
+    if (instance.heroId === 'm_bamba') {
+      title = '원시 밤바 진행도';
+      target = HEROES_BY_ID.m_bamba.immortalCondition?.target ?? 30;
+      current = Math.min(target, instance.progress ?? 0);
+      ready = instance.immortalEligible === true;
+      valueText = ready ? '승급 가능' : `${current} / ${target}`;
+    } else if (instance.heroId === 'm_chad') {
+      title = '기가 채드 진행도';
+      target = HEROES_BY_ID.m_chad.immortalCondition?.target ?? 10;
+      current = Math.min(target, instance.progress ?? 0);
+      ready = current >= target;
+      valueText = ready ? '승급 가능' : `${current}% / ${target}%`;
+    } else {
+      return null;
+    }
+
+    const ratio = target > 0 ? Math.max(0, Math.min(1, current / target)) : 0;
+    return el('div', { class: `hero-progress-banner${ready ? ' ready' : ''}` }, [
+      el('div', { class: 'hero-progress-heading' }, [
+        el('span', { class: 'hero-progress-title', text: title }),
+        el('span', { class: 'hero-progress-value', text: valueText }),
+      ]),
+      el('div', { class: 'hero-progress-track' }, [
+        el('div', { class: 'hero-progress-fill', style: `width:${ratio * 100}%;` }),
+      ]),
+    ]);
+  }
+
   function renderRaySwordBanner(state) {
     const found = selectedInstance(state);
     if (!found) return null;
