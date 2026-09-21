@@ -804,6 +804,8 @@ export function GameScreen({ getState, dispatch, onExit }) {
   // 실루엣으로 읽힌다. 알파 여백 제거 뒤 보정표의 값이 그대로 노출되면서 일반은
   // 과대, 전설 일부는 과소로 보였으므로 등급별 최종 배율을 한 번 더 분리한다.
   const NORMAL_TIER_SCALE = 0.82;
+  const RARE_TIER_SCALE = 0.80;
+  const HERO_TIER_SCALE = 0.80;
   const LEGENDARY_TIER_SCALE = 1.18;
   // "신화들 크기가 다 다르고 불멸 크기가 다 다르다 - 일반~전설은 전기로봇 크기,
   // 신화/불멸은 인디 크기로 맞춰달라"는 사용자 지정에 따라 크기 보정 체계를
@@ -1004,7 +1006,11 @@ export function GameScreen({ getState, dispatch, onExit }) {
             ? Math.max(LEGENDARY_COMPENSATION_MIN, rawCompensation) * LEGENDARY_TIER_SCALE
             : firstHeroTier === 'normal'
               ? rawCompensation * NORMAL_TIER_SCALE
-              : rawCompensation;
+              : firstHeroTier === 'rare'
+                ? rawCompensation * RARE_TIER_SCALE
+                : firstHeroTier === 'hero'
+                  ? rawCompensation * HERO_TIER_SCALE
+                  : rawCompensation;
       const tokenHeight = rect.height * HERO_TOKEN_HEIGHT_RATIO * sizeScale;
       const n = slot.occupants.length;
       // 발끝(박스 하단) 기준선: 일반~영웅은 칸 정중앙(사용자 지정) - 마리 수와
